@@ -1,0 +1,92 @@
+{
+    "Bot Info" :
+    {
+        "BotName" : "UAlbertaBot",
+        "Authors" : "Lingbo Tang",
+        "Race"    : "Protoss",
+        "PrintInfoOnStart" : false
+    },
+        
+    "BWAPI" : 
+    {
+        "SetLocalSpeed"   : 20,
+        "SetFrameSkip"    : 0,
+        "EnableUserInput" : true,
+        "EnableCompleteMapInformation" : false
+    },
+    
+    "Micro" :
+    {
+        "UseSparcraftSimulation" : true,
+    
+        "WorkerDefense" : true,
+        "WorkerDefensePerUnit" : 2,
+        
+        "InCombatRadius" : 1000,
+        "RegroupRadius" : 300,
+        "UnitNearEnemyRadius" : 600
+    },
+    
+    "Macro" :
+    {
+        "BuildingSpacing" : 1,
+        "PylongSpacing"   : 3
+    },
+
+    "Debug" :
+    {
+        "ErrorLogFilename"          : "C:/dev/ualbertabot/UAlbertaBot/UAB_ErrorLog.txt",
+        
+        "PrintModuleTimeout"        : false,
+        "PrintBuildOrderSearchInfo" : false,
+        "DrawUnitHealthBars"        : true,
+        "DrawProductionInfo"        : true,
+        "DrawEnemyUnitInfo"         : false,
+        "DrawModuleTimers"          : false,
+        "DrawResourceInfo"          : false,
+        "DrawCombatSimInfo"         : false,
+        "DrawUnitTargetInfo"        : false,
+        "PrintBuildOrderSearchInfo" : false,
+        "DrawBWTAInfo"              : false,
+        "DrawMapGrid"               : false,
+        "DrawSquadInfo"             : false,
+        "DrawWorkerInfo"            : false,
+        "DrawMouseCursorInfo"       : false,
+        "DrawBuildingInfo"          : false,
+        "DrawReservedBuildingTiles" : false,
+        
+        "AllDebugOff"               : false
+    },
+    
+    "Modules" :
+    {
+        "UseGameCommander"      : true,
+        "UseScoutManager"       : true,
+        "UseCombatCommander"    : true,
+        "UseBuildOrderSearch"   : true,
+        "UseAutoObserver"       : true,
+        "UseStrategyIO"         : true,
+        "UseUnitCommandManager" : false
+    },
+    
+    "Tools" :
+    {
+        "MapGridSize" : 320
+    },
+    
+    "Strategy" :
+    {
+        "StrategyName" : "Protoss_ZealotRush",
+        "ReadDirectory" : "bwapi-data/write/",
+        "WriteDirectory" : "bwapi-data/write/",
+        
+        "Strategies" :
+        {
+            "Protoss_ZealotRush"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot",  "Probe", "Zealot", "Zealot", "Probe", "Pylon", "Zealot", "Gateway", "Probe", "Pylon", "Probe", "Zealot", "Probe", "Zealot", "Zealot", "Zealot", "Zealot", "Pylon", "Probe", "Zealot", "Zealot", "Zealot" ]},
+            "Protoss_DragoonRush"   : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Probe", "Cybernetics_Core", "Probe", "Probe", "Gateway", "Singularity_Charge", "Dragoon", "Gateway", "Pylon", "Dragoon", "Dragoon", "Probe", "Gateway", "Pylon", "Probe", "Dragoon", "Dragoon", "Dragoon" ]},
+            "Protoss_DTRush"        : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Cybernetics_Core", "Probe", "Citadel_of_Adun", "Probe", "Templar_Archives", "Gateway", "Dark_Templar", "Dark_Templar", "Pylon", "Dark_Templar", "Dark_Templar", "Probe", "Pylon", "Probe" ]},
+            "Terran_MarineRush"     : { "Race" : "Terran",  "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "Supply_Depot", "SCV", "SCV", "Barracks", "Refinery", "SCV", "SCV", "SCV", "SCV", "Factory", "Factory", "Machine_Shop", "Machine_Shop" ]},
+            "Zerg_ZerglingRush"     : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Overlord", "Drone", "Drone", "Drone", "Hatchery", "Spawning_Pool", "Extractor", "Drone", "Drone", "Drone", "Drone", "Overlord", "Lair" ] }
+        }
+    }
+}

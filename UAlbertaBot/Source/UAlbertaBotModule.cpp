@@ -257,7 +257,6 @@ void UAlbertaBotModule::onEnd(bool isWinner)
 
 void UAlbertaBotModule::onFrame()
 {
-	BWAPI::Broodwar->printf("LingboTang 1353070");
 	if (Config::Modules::UsingUnitCommandManager)
 	{
 		UnitCommandManager::Instance().update();

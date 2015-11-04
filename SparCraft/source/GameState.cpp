@@ -38,6 +38,11 @@ GameState::GameState()
 	_numMovements.fill(0);
     _prevHPSum.fill(0);
 
+    _units[0] = std::vector<Unit>(Constants::Max_Units, Unit());
+    _units[1] = std::vector<Unit>(Constants::Max_Units, Unit());
+    _unitIndex[0] = std::vector<int>(Constants::Max_Units, 0);
+    _unitIndex[1] = std::vector<int>(Constants::Max_Units, 0);
+
 	for (size_t u(0); u<_maxUnits; ++u)
 	{
         _unitIndex[0][u] = u;
@@ -1045,6 +1050,41 @@ std::string GameState::toString() const
 
 	return ss.str();
 }
+
+std::string GameState::toStringCompact() const
+{
+	std::stringstream ss;
+
+	for (IDType p(0); p<Constants::Num_Players; ++p)
+	{
+        std::map<BWAPI::UnitType, size_t> typeCount;
+
+		for (UnitCountType u(0); u<_numUnits[p]; ++u)
+		{
+			const Unit & unit(getUnit(p, u));
+
+            if (typeCount.find(unit.type()) != std::end(typeCount))
+            {
+                typeCount[unit.type()]++;
+            }
+            else
+            {
+                typeCount[unit.type()] = 1;
+            }
+		}
+
+        for (auto & kv : typeCount)
+        {
+            const BWAPI::UnitType & type = kv.first;
+            const size_t count = kv.second;
+
+            ss << "P" << (int)p << " " << count << " " << type.getName() << "\n";
+        }
+	}
+
+	return ss.str();
+}
+
 void GameState::write(const std::string & filename) const
 {
     std::ofstream fout (filename.c_str(), std::ios::out | std::ios::binary); 

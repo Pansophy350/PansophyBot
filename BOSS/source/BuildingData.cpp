@@ -103,9 +103,13 @@ void BuildingStatus::fastForward(const FrameCountType frames)
 {
     // if we fastforward more than the current time remaining, we will complete the action
     bool willComplete = _timeRemaining <= frames;
+    int timeWasRemaining = _timeRemaining;
+    const std::string & name = _type.getName();
 
     if ((_timeRemaining > 0) && willComplete)
     {
+        BOSS_ASSERT(_isConstructing != ActionTypes::None, "We can't be building a unit without a type %s %d", _type.getName().c_str(), timeWasRemaining);
+
         _timeRemaining = 0;
 
         // if it's building an addon, add it
@@ -193,29 +197,6 @@ const FrameCountType BuildingData::getTimeUntilCanBuild(const ActionType & actio
     return min;
 }
 
-// gets the time until building of type t is free
-// this will only ever be called if t exists, so min will always be set to a lower value
-//FrameCountType BuildingData::timeUntilFree(const ActionType & action) const
-//{
-//    BOSS_ASSERT(_buildings.size() > 0, "Called timeUntilFree on empty building data");
-//
-//    bool minset = false;
-//	FrameCountType min = 0;
-//	
-//	for (size_t i=0; i<_buildings.size(); ++i)
-//	{
-//		if (_buildings[i]._type == action && (!minset || _buildings[i]._timeRemaining < min))
-//		{
-//			min = _buildings[i]._timeRemaining;
-//            minset = true;
-//		}
-//	}
-//		
-//	BOSS_ASSERT(minset, "No min was set");
-//	
-//	return min;
-//}
-
 void BuildingData::queueAction(const ActionType & action)
 {	
 	for (size_t i=0; i<_buildings.size(); ++i)
@@ -238,6 +219,23 @@ void BuildingData::fastForwardBuildings(const FrameCountType frames)
 	{
         _buildings[i].fastForward(frames);
 	}
+}
+
+std::string BuildingData::toString() const
+{
+    std::stringstream ss;
+    ss << "Buildings\n\n";
+
+    for (size_t i=0; i<_buildings.size(); ++i)
+	{
+        const BuildingStatus & b = _buildings[i];
+        ss << b._type.getName() << "   "; 
+        ss << b._timeRemaining << "   "; 
+        ss << (b._isConstructing != ActionTypes::None ? b._isConstructing.getName() : "None") << "   ";
+        ss << (b._addon != ActionTypes::None ? b._addon.getName() : "None") << "\n";
+    }
+
+    return ss.str();
 }
 	
 const bool BuildingData::canBuildNow(const ActionType & action) const

@@ -5,6 +5,13 @@
 
 namespace Config
 {
+    namespace ConfigFile
+    {
+        extern bool ConfigFileFound;
+        extern bool ConfigFileParsed;
+        extern std::string ConfigFileLocation;
+    }
+
     namespace Modules
     {
         extern bool UsingGameCommander;			
@@ -13,24 +20,25 @@ namespace Config
         extern bool UsingUnitCommandManager;
         extern bool UsingBuildOrderSearch;  
         extern bool UsingAutoObserver;
-        extern bool UsingStrategyIO;            
-        extern bool UsingBuildOrderDemo;			
+        extern bool UsingStrategyIO;			
     }
     
     namespace BotInfo
     {
         extern std::string BotName;
         extern std::string Authors;
-        extern BWAPI::Race BotRace;
         extern bool PrintInfoOnStart;
     }
 
     namespace Strategy
     {
-        extern BWAPI::Race StrategyRace;
         extern std::string StrategyName;
         extern std::string ReadDir;
         extern std::string WriteDir;
+        extern bool GasStealWithScout;
+        extern bool ScoutHarassEnemy;
+        extern bool UseEnemySpecificStrategy;
+        extern bool FoundEnemySpecificStrategy;
     }
 
     namespace BWAPIOptions
@@ -48,11 +56,12 @@ namespace Config
 
     namespace Debug
     {
-        extern bool PrintModuleTimeout;				
-        extern bool PrintBuildOrderSearchInfo;
+        extern bool DrawGameInfo;
+        extern bool DrawBuildOrderSearchInfo;
         extern bool DrawUnitHealthBars;
         extern bool DrawResourceInfo;
         extern bool DrawProductionInfo;
+        extern bool DrawScoutInfo;
         extern bool DrawWorkerInfo;
         extern bool DrawModuleTimers;
         extern bool DrawReservedBuildingTiles;
@@ -64,9 +73,11 @@ namespace Config
         extern bool DrawMapGrid;
         extern bool DrawUnitTargetInfo;
         extern bool DrawSquadInfo;
-        extern bool AllDebugOff;
+        extern bool DrawBOSSStateInfo;
+        extern bool PrintModuleTimeout;		
 
         extern std::string ErrorLogFilename;
+        extern bool LogAssertToErrorFile;
 
         extern BWAPI::Color ColorLineTarget;
         extern BWAPI::Color ColorLineMineral;
@@ -76,9 +87,12 @@ namespace Config
 
     namespace Micro
     {
-        extern bool WorkerDefense;
-        extern int  WorkerDefensePerUnit;
-
+        extern bool UseSparcraftSimulation;
+        extern bool KiteWithRangedUnits;
+        extern std::set<BWAPI::UnitType> KiteLongerRangedUnits;
+        extern bool WorkersDefendRush;
+        extern int RetreatMeleeUnitShields;
+        extern int RetreatMeleeUnitHP;
         extern int CombatRadius;                
         extern int CombatRegroupRadius;         
         extern int UnitNearEnemyRadius;         
@@ -86,6 +100,8 @@ namespace Config
 
     namespace Macro
     {
+        extern int BOSSFrameLimit;
+        extern int WorkersPerRefinery;
         extern int BuildingSpacing;
         extern int PylonSpacing;
     }

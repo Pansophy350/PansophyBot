@@ -3,68 +3,51 @@
 #include <Common.h>
 #include "WorkerManager.h"
 #include "BuildingPlacer.h"
-#include "BuildingData.h"
 #include "InformationManager.h"
 #include "MapTools.h"
 
 namespace UAlbertaBot
 {
-class BuildingManager {
+class BuildingManager
+{
+    BuildingManager();
 
-	BuildingManager();
+    std::vector<Building> _buildings;
 
-	ConstructionData			buildingData;
+    bool            _debugMode;
+    int             _reservedMinerals;				// minerals reserved for planned buildings
+    int             _reservedGas;					// gas reserved for planned buildings
 
-	bool						debugMode;
-	int							totalBuildTasks;
+    bool            isEvolvedBuilding(BWAPI::UnitType type);
+    bool            isBuildingPositionExplored(const Building & b) const;
+    void            removeBuildings(const std::vector<Building> & toRemove);
 
-	int							reservedMinerals;				// minerals reserved for planned buildings
-	int							reservedGas;					// gas reserved for planned buildings
-	int							buildingSpace;					// how much space we want between buildings
+    void            validateWorkersAndBuildings();		    // STEP 1
+    void            assignWorkersToUnassignedBuildings();	// STEP 2
+    void            constructAssignedBuildings();			// STEP 3
+    void            checkForStartedConstruction();			// STEP 4
+    void            checkForDeadTerranBuilders();			// STEP 5
+    void            checkForCompletedBuildings();			// STEP 6
 
-	std::vector<BWAPI::UnitInterface*>	builders;						// workers which have been assigned to buildings
-	std::vector<Building>		buildingsNeedingBuilders;		// buildings which do not yet have builders assigned
-	std::vector<Building>		buildingsAssigned;				// buildings which have workers but not yet under construction
-	std::vector<Building>		buildingsUnderConstruction;		// buildings which are under construction
-	std::vector<BWAPI::UnitInterface*>	buildingUnitsConstructing;		// units which have been recently detected as started construction
-
-    BWAPI::UnitInterface*               getAddonProducer(MetaType t);
-
-	// functions
-	bool						isEvolvedBuilding(BWAPI::UnitType type);
-	bool						isBuildingPositionExplored(const Building & b) const;
-
-	// the update() functions
-	void						validateWorkersAndBuildings();		// STEP 1
-	void						assignWorkersToUnassignedBuildings();	// STEP 2
-	void						constructAssignedBuildings();			// STEP 3
-	void						checkForStartedConstruction();			// STEP 4
-	void						checkForDeadTerranBuilders();			// STEP 5
-	void						checkForCompletedBuildings();			// STEP 6
-
-	// functions for performing tedious vector tasks
-	void						removeBuildingFromVector(BWAPI::UnitInterface* buildingUnit, std::vector<Building> & vec);
-	void						removeBuildingFromVector(Building & b, std::vector<Building> & vec);
-
-	char						getBuildingWorkerCode(const Building & b) const;
+    char            getBuildingWorkerCode(const Building & b) const;
+    
 
 public:
+    
+    static BuildingManager &	Instance();
 
-	void						update();
-	void						onUnitMorph(BWAPI::UnitInterface* unit);
-	void						onUnitDestroy(BWAPI::UnitInterface* unit);
-	void						addBuildingTask(BWAPI::UnitType type, BWAPI::TilePosition desiredLocation);
-	BWAPI::TilePosition			getBuildingLocation(const Building & b);
+    void                update();
+    void                onUnitMorph(BWAPI::Unit unit);
+    void                onUnitDestroy(BWAPI::Unit unit);
+    void                addBuildingTask(BWAPI::UnitType type,BWAPI::TilePosition desiredLocation,bool isGasSteal);
+    void                drawBuildingInformation(int x,int y);
+    BWAPI::TilePosition getBuildingLocation(const Building & b);
 
-	int							getReservedMinerals();
-	int							getReservedGas();
+    int                 getReservedMinerals();
+    int                 getReservedGas();
 
-	static BuildingManager &	Instance();
+    bool                isBeingBuilt(BWAPI::UnitType type);
 
-	void						printBuildingNumbers();
-
-	bool						isBeingBuilt(BWAPI::UnitType type);
-	
-	void						drawBuildingInformation(int x, int y);
+    std::vector<BWAPI::UnitType> buildingsQueued();
 };
 }

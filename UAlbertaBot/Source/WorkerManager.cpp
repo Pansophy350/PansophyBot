@@ -1,29 +1,26 @@
 #include "Common.h"
 #include "WorkerManager.h"
+#include "Micro.h"
 
 using namespace UAlbertaBot;
 
 WorkerManager::WorkerManager() 
-    : workersPerRefinery(3) 
 {
-    previousClosestWorker = NULL;
+    previousClosestWorker = nullptr;
+}
+
+WorkerManager & WorkerManager::Instance() 
+{
+	static WorkerManager instance;
+	return instance;
 }
 
 void WorkerManager::update() 
 {
-	// worker bookkeeping
 	updateWorkerStatus();
-
-	// set the gas workers
 	handleGasWorkers();
-
-	// handle idle workers
 	handleIdleWorkers();
-
-	// handle move workers
 	handleMoveWorkers();
-
-	// handle combat workers
 	handleCombatWorkers();
 
 	drawResourceDebugInfo();
@@ -37,7 +34,7 @@ void WorkerManager::update()
 void WorkerManager::updateWorkerStatus() 
 {
 	// for each of our Workers
-	for (BWAPI::UnitInterface* worker : workerData.getWorkers())
+	for (auto & worker : workerData.getWorkers())
 	{
 		if (!worker->isCompleted())
 		{
@@ -50,15 +47,13 @@ void WorkerManager::updateWorkerStatus()
 			(workerData.getWorkerJob(worker) != WorkerData::Move) &&
 			(workerData.getWorkerJob(worker) != WorkerData::Scout)) 
 		{
-			//printf("Worker %d set to idle", worker->getID());
-			// set its job to idle
-			workerData.setWorkerJob(worker, WorkerData::Idle, NULL);
+			workerData.setWorkerJob(worker, WorkerData::Idle, nullptr);
 		}
 
 		// if its job is gas
 		if (workerData.getWorkerJob(worker) == WorkerData::Gas)
 		{
-			BWAPI::UnitInterface* refinery = workerData.getWorkerResource(worker);
+			BWAPI::Unit refinery = workerData.getWorkerResource(worker);
 
 			// if the refinery doesn't exist anymore
 			if (!refinery || !refinery->exists() ||	refinery->getHitPoints() <= 0)
@@ -69,31 +64,31 @@ void WorkerManager::updateWorkerStatus()
 	}
 }
 
-void WorkerManager::setRepairWorker(BWAPI::UnitInterface* worker, BWAPI::UnitInterface* unitToRepair)
+void WorkerManager::setRepairWorker(BWAPI::Unit worker, BWAPI::Unit unitToRepair)
 {
     workerData.setWorkerJob(worker, WorkerData::Repair, unitToRepair);
 }
 
-void WorkerManager::stopRepairing(BWAPI::UnitInterface* worker)
+void WorkerManager::stopRepairing(BWAPI::Unit worker)
 {
-    workerData.setWorkerJob(worker, WorkerData::Idle, NULL);
+    workerData.setWorkerJob(worker, WorkerData::Idle, nullptr);
 }
 
 void WorkerManager::handleGasWorkers() 
 {
 	// for each unit we have
-	for (BWAPI::UnitInterface* unit : BWAPI::Broodwar->self()->getUnits())
+	for (auto & unit : BWAPI::Broodwar->self()->getUnits())
 	{
 		// if that unit is a refinery
-		if (unit->getType().isRefinery() && unit->isCompleted())
+		if (unit->getType().isRefinery() && unit->isCompleted() && !isGasStealRefinery(unit))
 		{
 			// get the number of workers currently assigned to it
 			int numAssigned = workerData.getNumAssignedWorkers(unit);
 
 			// if it's less than we want it to be, fill 'er up
-			for (int i=0; i<(workersPerRefinery-numAssigned); ++i)
+			for (int i=0; i<(Config::Macro::WorkersPerRefinery-numAssigned); ++i)
 			{
-				BWAPI::UnitInterface* gasWorker = getGasWorker(unit);
+				BWAPI::Unit gasWorker = getGasWorker(unit);
 				if (gasWorker)
 				{
 					workerData.setWorkerJob(gasWorker, WorkerData::Gas, unit);
@@ -104,12 +99,36 @@ void WorkerManager::handleGasWorkers()
 
 }
 
+bool WorkerManager::isGasStealRefinery(BWAPI::Unit unit)
+{
+    BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
+    if (!enemyBaseLocation)
+    {
+        return false;
+    }
+    
+    if (enemyBaseLocation->getGeysers().empty())
+    {
+        return false;
+    }
+    
+	for (auto & u : enemyBaseLocation->getGeysers())
+	{
+        if (unit->getTilePosition() == u->getTilePosition())
+        {
+            return true;
+        }
+	}
+
+    return false;
+}
+
 void WorkerManager::handleIdleWorkers() 
 {
 	// for each of our workers
-	for (BWAPI::UnitInterface* worker : workerData.getWorkers())
+	for (auto & worker : workerData.getWorkers())
 	{
-        UAB_ASSERT(worker != NULL, "Worker was null");
+        UAB_ASSERT(worker != nullptr, "Worker was null");
 
 		// if it is idle
 		if (workerData.getWorkerJob(worker) == WorkerData::Idle) 
@@ -127,11 +146,11 @@ void WorkerManager::handleRepairWorkers()
         return;
     }
 
-    for (BWAPI::UnitInterface* unit : BWAPI::Broodwar->self()->getUnits())
+    for (auto & unit : BWAPI::Broodwar->self()->getUnits())
     {
         if (unit->getType().isBuilding() && (unit->getHitPoints() < unit->getType().maxHitPoints()))
         {
-            BWAPI::UnitInterface* repairWorker = getClosestMineralWorkerTo(unit);
+            BWAPI::Unit repairWorker = getClosestMineralWorkerTo(unit);
             setRepairWorker(repairWorker, unit);
             break;
         }
@@ -141,31 +160,31 @@ void WorkerManager::handleRepairWorkers()
 // bad micro for combat workers
 void WorkerManager::handleCombatWorkers()
 {
-	for (BWAPI::UnitInterface* worker : workerData.getWorkers())
+	for (auto & worker : workerData.getWorkers())
 	{
-        UAB_ASSERT(worker != NULL, "Worker was null");
+        UAB_ASSERT(worker != nullptr, "Worker was null");
 
 		if (workerData.getWorkerJob(worker) == WorkerData::Combat)
 		{
 			BWAPI::Broodwar->drawCircleMap(worker->getPosition().x, worker->getPosition().y, 4, BWAPI::Colors::Yellow, true);
-			BWAPI::UnitInterface* target = getClosestEnemyUnit(worker);
+			BWAPI::Unit target = getClosestEnemyUnit(worker);
 
 			if (target)
 			{
-				smartAttackUnit(worker, target);
+				Micro::SmartAttackUnit(worker, target);
 			}
 		}
 	}
 }
 
-BWAPI::UnitInterface* WorkerManager::getClosestEnemyUnit(BWAPI::UnitInterface* worker)
+BWAPI::Unit WorkerManager::getClosestEnemyUnit(BWAPI::Unit worker)
 {
-    UAB_ASSERT(worker != NULL, "Worker was null");
+    UAB_ASSERT(worker != nullptr, "Worker was null");
 
-	BWAPI::UnitInterface* closestUnit = NULL;
+	BWAPI::Unit closestUnit = nullptr;
 	double closestDist = 10000;
 
-	for (BWAPI::UnitInterface* unit : BWAPI::Broodwar->enemy()->getUnits())
+	for (auto & unit : BWAPI::Broodwar->enemy()->getUnits())
 	{
 		double dist = unit->getDistance(worker);
 
@@ -181,9 +200,9 @@ BWAPI::UnitInterface* WorkerManager::getClosestEnemyUnit(BWAPI::UnitInterface* w
 
 void WorkerManager::finishedWithCombatWorkers()
 {
-	for (BWAPI::UnitInterface* worker : workerData.getWorkers())
+	for (auto & worker : workerData.getWorkers())
 	{
-        UAB_ASSERT(worker != NULL, "Worker was null");
+        UAB_ASSERT(worker != nullptr, "Worker was null");
 
 		if (workerData.getWorkerJob(worker) == WorkerData::Combat)
 		{
@@ -192,11 +211,11 @@ void WorkerManager::finishedWithCombatWorkers()
 	}
 }
 
-BWAPI::UnitInterface* WorkerManager::getClosestMineralWorkerTo(BWAPI::UnitInterface* enemyUnit)
+BWAPI::Unit WorkerManager::getClosestMineralWorkerTo(BWAPI::Unit enemyUnit)
 {
-    UAB_ASSERT(enemyUnit != NULL, "enemyUnit was null");
+    UAB_ASSERT(enemyUnit != nullptr, "enemyUnit was null");
 
-    BWAPI::UnitInterface* closestMineralWorker = NULL;
+    BWAPI::Unit closestMineralWorker = nullptr;
     double closestDist = 100000;
 
     if (previousClosestWorker)
@@ -208,9 +227,9 @@ BWAPI::UnitInterface* WorkerManager::getClosestMineralWorkerTo(BWAPI::UnitInterf
     }
 
     // for each of our workers
-	for (BWAPI::UnitInterface* worker : workerData.getWorkers())
+	for (auto & worker : workerData.getWorkers())
 	{
-        UAB_ASSERT(worker != NULL, "Worker was null");
+        UAB_ASSERT(worker != nullptr, "Worker was null");
 		if (!worker)
 		{
 			continue;
@@ -232,30 +251,50 @@ BWAPI::UnitInterface* WorkerManager::getClosestMineralWorkerTo(BWAPI::UnitInterf
     return closestMineralWorker;
 }
 
+BWAPI::Unit WorkerManager::getWorkerScout()
+{
+    // for each of our workers
+	for (auto & worker : workerData.getWorkers())
+	{
+        UAB_ASSERT(worker != nullptr, "Worker was null");
+		if (!worker)
+		{
+			continue;
+		}
+		// if it is a move worker
+        if (workerData.getWorkerJob(worker) == WorkerData::Scout) 
+		{
+			return worker;
+		}
+	}
+
+    return nullptr;
+}
+
 void WorkerManager::handleMoveWorkers() 
 {
 	// for each of our workers
-	for (BWAPI::UnitInterface* worker : workerData.getWorkers())
+	for (auto & worker : workerData.getWorkers())
 	{
-        UAB_ASSERT(worker != NULL, "Worker was null");
+        UAB_ASSERT(worker != nullptr, "Worker was null");
 
 		// if it is a move worker
 		if (workerData.getWorkerJob(worker) == WorkerData::Move) 
 		{
 			WorkerMoveData data = workerData.getWorkerMoveData(worker);
 			
-			worker->move(data.position);
+			Micro::SmartMove(worker, data.position);
 		}
 	}
 }
 
 // set a worker to mine minerals
-void WorkerManager::setMineralWorker(BWAPI::UnitInterface* unit)
+void WorkerManager::setMineralWorker(BWAPI::Unit unit)
 {
-    UAB_ASSERT(unit != NULL, "Unit was null");
+    UAB_ASSERT(unit != nullptr, "Unit was null");
 
 	// check if there is a mineral available to send the worker to
-	BWAPI::UnitInterface* depot = getClosestDepot(unit);
+	BWAPI::Unit depot = getClosestDepot(unit);
 
 	// if there is a valid mineral
 	if (depot)
@@ -269,18 +308,18 @@ void WorkerManager::setMineralWorker(BWAPI::UnitInterface* unit)
 	}
 }
 
-BWAPI::UnitInterface* WorkerManager::getClosestDepot(BWAPI::UnitInterface* worker)
+BWAPI::Unit WorkerManager::getClosestDepot(BWAPI::Unit worker)
 {
-	UAB_ASSERT(worker != NULL, "Worker was null");
+	UAB_ASSERT(worker != nullptr, "Worker was null");
 
-	BWAPI::UnitInterface* closestDepot = NULL;
+	BWAPI::Unit closestDepot = nullptr;
 	double closestDistance = 0;
 
-	for (BWAPI::UnitInterface* unit : BWAPI::Broodwar->self()->getUnits())
+	for (auto & unit : BWAPI::Broodwar->self()->getUnits())
 	{
-        UAB_ASSERT(unit != NULL, "Unit was null");
+        UAB_ASSERT(unit != nullptr, "Unit was null");
 
-		if (unit->getType().isResourceDepot() && unit->isCompleted() && !workerData.depotIsFull(unit))
+		if (unit->getType().isResourceDepot() && (unit->isCompleted() || unit->getType() == BWAPI::UnitTypes::Zerg_Lair) && !workerData.depotIsFull(unit))
 		{
 			double distance = unit->getDistance(worker);
 			if (!closestDepot || distance < closestDistance)
@@ -296,27 +335,27 @@ BWAPI::UnitInterface* WorkerManager::getClosestDepot(BWAPI::UnitInterface* worke
 
 
 // other managers that need workers call this when they're done with a unit
-void WorkerManager::finishedWithWorker(BWAPI::UnitInterface* unit) 
+void WorkerManager::finishedWithWorker(BWAPI::Unit unit) 
 {
-	UAB_ASSERT(unit != NULL, "Unit was null");
+	UAB_ASSERT(unit != nullptr, "Unit was null");
 
 	//BWAPI::Broodwar->printf("BuildingManager finished with worker %d", unit->getID());
 	if (workerData.getWorkerJob(unit) != WorkerData::Scout)
 	{
-		workerData.setWorkerJob(unit, WorkerData::Idle, NULL);
+		workerData.setWorkerJob(unit, WorkerData::Idle, nullptr);
 	}
 }
 
-BWAPI::UnitInterface* WorkerManager::getGasWorker(BWAPI::UnitInterface* refinery)
+BWAPI::Unit WorkerManager::getGasWorker(BWAPI::Unit refinery)
 {
-	UAB_ASSERT(refinery != NULL, "Refinery was null");
+	UAB_ASSERT(refinery != nullptr, "Refinery was null");
 
-	BWAPI::UnitInterface* closestWorker = NULL;
+	BWAPI::Unit closestWorker = nullptr;
 	double closestDistance = 0;
 
-	for (BWAPI::UnitInterface* unit : workerData.getWorkers())
+	for (auto & unit : workerData.getWorkers())
 	{
-        UAB_ASSERT(unit != NULL, "Unit was null");
+        UAB_ASSERT(unit != nullptr, "Unit was null");
 
 		if (workerData.getWorkerJob(unit) == WorkerData::Minerals)
 		{
@@ -332,9 +371,9 @@ BWAPI::UnitInterface* WorkerManager::getGasWorker(BWAPI::UnitInterface* refinery
 	return closestWorker;
 }
 
- void WorkerManager::setBuildingWorker(BWAPI::UnitInterface* worker, Building & b)
+ void WorkerManager::setBuildingWorker(BWAPI::Unit worker, Building & b)
  {
-     UAB_ASSERT(worker != NULL, "Worker was null");
+     UAB_ASSERT(worker != nullptr, "Worker was null");
 
      workerData.setWorkerJob(worker, WorkerData::Build, b.type);
  }
@@ -342,18 +381,28 @@ BWAPI::UnitInterface* WorkerManager::getGasWorker(BWAPI::UnitInterface* refinery
 // gets a builder for BuildingManager to use
 // if setJobAsBuilder is true (default), it will be flagged as a builder unit
 // set 'setJobAsBuilder' to false if we just want to see which worker will build a building
-BWAPI::UnitInterface* WorkerManager::getBuilder(Building & b, bool setJobAsBuilder)
+BWAPI::Unit WorkerManager::getBuilder(Building & b, bool setJobAsBuilder)
 {
 	// variables to hold the closest worker of each type to the building
-	BWAPI::UnitInterface* closestMovingWorker = NULL;
-	BWAPI::UnitInterface* closestMiningWorker = NULL;
+	BWAPI::Unit closestMovingWorker = nullptr;
+	BWAPI::Unit closestMiningWorker = nullptr;
 	double closestMovingWorkerDistance = 0;
 	double closestMiningWorkerDistance = 0;
 
 	// look through each worker that had moved there first
-	for (BWAPI::UnitInterface* unit : workerData.getWorkers())
+	for (auto & unit : workerData.getWorkers())
 	{
-        UAB_ASSERT(unit != NULL, "Unit was null");
+        UAB_ASSERT(unit != nullptr, "Unit was null");
+
+        // gas steal building uses scout worker
+        if (b.isGasSteal && (workerData.getWorkerJob(unit) == WorkerData::Scout))
+        {
+            if (setJobAsBuilder)
+            {
+                workerData.setWorkerJob(unit, WorkerData::Build, b.type);
+            }
+            return unit;
+        }
 
 		// mining worker check
 		if (unit->isCompleted() && (workerData.getWorkerJob(unit) == WorkerData::Minerals))
@@ -381,7 +430,7 @@ BWAPI::UnitInterface* WorkerManager::getBuilder(Building & b, bool setJobAsBuild
 	}
 
 	// if we found a moving worker, use it, otherwise using a mining worker
-	BWAPI::UnitInterface* chosenWorker = closestMovingWorker ? closestMovingWorker : closestMiningWorker;
+	BWAPI::Unit chosenWorker = closestMovingWorker ? closestMovingWorker : closestMiningWorker;
 
 	// if the worker exists (one may not have been found in rare cases)
 	if (chosenWorker && setJobAsBuilder)
@@ -394,24 +443,24 @@ BWAPI::UnitInterface* WorkerManager::getBuilder(Building & b, bool setJobAsBuild
 }
 
 // sets a worker as a scout
-void WorkerManager::setScoutWorker(BWAPI::UnitInterface* worker)
+void WorkerManager::setScoutWorker(BWAPI::Unit worker)
 {
-	UAB_ASSERT(worker != NULL, "Worker was null");
+	UAB_ASSERT(worker != nullptr, "Worker was null");
 
-	workerData.setWorkerJob(worker, WorkerData::Scout, NULL);
+	workerData.setWorkerJob(worker, WorkerData::Scout, nullptr);
 }
 
 // gets a worker which will move to a current location
-BWAPI::UnitInterface* WorkerManager::getMoveWorker(BWAPI::Position p)
+BWAPI::Unit WorkerManager::getMoveWorker(BWAPI::Position p)
 {
 	// set up the pointer
-	BWAPI::UnitInterface* closestWorker = NULL;
+	BWAPI::Unit closestWorker = nullptr;
 	double closestDistance = 0;
 
 	// for each worker we currently have
-	for (BWAPI::UnitInterface* unit : workerData.getWorkers())
+	for (auto & unit : workerData.getWorkers())
 	{
-        UAB_ASSERT(unit != NULL, "Unit was null");
+        UAB_ASSERT(unit != nullptr, "Unit was null");
 
 		// only consider it if it's a mineral worker
 		if (unit->isCompleted() && workerData.getWorkerJob(unit) == WorkerData::Minerals)
@@ -434,13 +483,13 @@ BWAPI::UnitInterface* WorkerManager::getMoveWorker(BWAPI::Position p)
 void WorkerManager::setMoveWorker(int mineralsNeeded, int gasNeeded, BWAPI::Position p)
 {
 	// set up the pointer
-	BWAPI::UnitInterface* closestWorker = NULL;
+	BWAPI::Unit closestWorker = nullptr;
 	double closestDistance = 0;
 
 	// for each worker we currently have
-	for (BWAPI::UnitInterface* unit : workerData.getWorkers())
+	for (auto & unit : workerData.getWorkers())
 	{
-        UAB_ASSERT(unit != NULL, "Unit was null");
+        UAB_ASSERT(unit != nullptr, "Unit was null");
 
 		// only consider it if it's a mineral worker
 		if (unit->isCompleted() && workerData.getWorkerJob(unit) == WorkerData::Minerals)
@@ -500,16 +549,16 @@ bool WorkerManager::willHaveResources(int mineralsRequired, int gasRequired, dou
 	}
 }
 
-void WorkerManager::setCombatWorker(BWAPI::UnitInterface* worker)
+void WorkerManager::setCombatWorker(BWAPI::Unit worker)
 {
-	UAB_ASSERT(worker != NULL, "Worker was null");
+	UAB_ASSERT(worker != nullptr, "Worker was null");
 
-	workerData.setWorkerJob(worker, WorkerData::Combat, NULL);
+	workerData.setWorkerJob(worker, WorkerData::Combat, nullptr);
 }
 
-void WorkerManager::onUnitMorph(BWAPI::UnitInterface* unit)
+void WorkerManager::onUnitMorph(BWAPI::Unit unit)
 {
-	UAB_ASSERT(unit != NULL, "Unit was null");
+	UAB_ASSERT(unit != nullptr, "Unit was null");
 
 	// if something morphs into a worker, add it
 	if (unit->getType().isWorker() && unit->getPlayer() == BWAPI::Broodwar->self() && unit->getHitPoints() >= 0)
@@ -525,9 +574,9 @@ void WorkerManager::onUnitMorph(BWAPI::UnitInterface* unit)
 	}
 }
 
-void WorkerManager::onUnitShow(BWAPI::UnitInterface* unit)
+void WorkerManager::onUnitShow(BWAPI::Unit unit)
 {
-	UAB_ASSERT(unit != NULL, "Unit was null");
+	UAB_ASSERT(unit != nullptr, "Unit was null");
 
 	// add the depot if it exists
 	if (unit->getType().isResourceDepot() && unit->getPlayer() == BWAPI::Broodwar->self())
@@ -547,81 +596,46 @@ void WorkerManager::onUnitShow(BWAPI::UnitInterface* unit)
 void WorkerManager::rebalanceWorkers()
 {
 	// for each worker
-	for (BWAPI::UnitInterface* worker : workerData.getWorkers())
+	for (auto & worker : workerData.getWorkers())
 	{
-        UAB_ASSERT(worker != NULL, "Worker was null");
+        UAB_ASSERT(worker != nullptr, "Worker was null");
 
-		// we only care to rebalance mineral workers
 		if (!workerData.getWorkerJob(worker) == WorkerData::Minerals)
 		{
 			continue;
 		}
 
-		// get the depot this worker works for
-		BWAPI::UnitInterface* depot = workerData.getWorkerDepot(worker);
+		BWAPI::Unit depot = workerData.getWorkerDepot(worker);
 
-		// if there is a depot and it's full
 		if (depot && workerData.depotIsFull(depot))
 		{
-			// set the worker to idle
-			workerData.setWorkerJob(worker, WorkerData::Idle, NULL);
+			workerData.setWorkerJob(worker, WorkerData::Idle, nullptr);
 		}
-		// if there's no depot
 		else if (!depot)
 		{
-			// set the worker to idle
-			workerData.setWorkerJob(worker, WorkerData::Idle, NULL);
+			workerData.setWorkerJob(worker, WorkerData::Idle, nullptr);
 		}
 	}
 }
 
-void WorkerManager::onUnitDestroy(BWAPI::UnitInterface* unit) 
+void WorkerManager::onUnitDestroy(BWAPI::Unit unit) 
 {
-	UAB_ASSERT(unit != NULL, "Unit was null");
+	UAB_ASSERT(unit != nullptr, "Unit was null");
 
-	// remove the depot if it exists
 	if (unit->getType().isResourceDepot() && unit->getPlayer() == BWAPI::Broodwar->self())
 	{
 		workerData.removeDepot(unit);
 	}
 
-	// if the unit that was destroyed is a worker
 	if (unit->getType().isWorker() && unit->getPlayer() == BWAPI::Broodwar->self()) 
 	{
-		// tell the worker data it was destroyed
 		workerData.workerDestroyed(unit);
 	}
 
 	if (unit->getType() == BWAPI::UnitTypes::Resource_Mineral_Field)
 	{
-		//BWAPI::Broodwar->printf("A mineral died, rebalancing workers");
-
 		rebalanceWorkers();
 	}
-}
-
-void WorkerManager::smartAttackUnit(BWAPI::UnitInterface* attacker, BWAPI::UnitInterface* target)
-{
-    UAB_ASSERT(attacker != NULL, "Attacker was null");
-    UAB_ASSERT(target != NULL, "Target was null");
-
-	// if we have issued a command to this unit already this frame, ignore this one
-	if (attacker->getLastCommandFrame() >= BWAPI::Broodwar->getFrameCount() || attacker->isAttackFrame())
-	{
-		return;
-	}
-
-	// get the unit's current command
-	BWAPI::UnitCommand currentCommand(attacker->getLastCommand());
-
-	// if we've already told this unit to attack this target, ignore this command
-	if (currentCommand.getType() == BWAPI::UnitCommandTypes::Attack_Unit &&	currentCommand.getTarget() == target)
-	{
-		return;
-	}
-
-	// if nothing prevents it, attack the target
-	attacker->attack(target);
 }
 
 void WorkerManager::drawResourceDebugInfo() 
@@ -631,9 +645,9 @@ void WorkerManager::drawResourceDebugInfo()
         return;
     }
 
-	for (BWAPI::UnitInterface* worker : workerData.getWorkers()) 
+	for (auto & worker : workerData.getWorkers()) 
     {
-        UAB_ASSERT(worker != NULL, "Worker was null");
+        UAB_ASSERT(worker != nullptr, "Worker was null");
 
 		char job = workerData.getJobCode(worker);
 
@@ -643,7 +657,7 @@ void WorkerManager::drawResourceDebugInfo()
 
 		BWAPI::Broodwar->drawLineMap(worker->getPosition().x, worker->getPosition().y, pos.x, pos.y, BWAPI::Colors::Cyan);
 
-		BWAPI::UnitInterface* depot = workerData.getWorkerDepot(worker);
+		BWAPI::Unit depot = workerData.getWorkerDepot(worker);
 		if (depot)
 		{
 			BWAPI::Broodwar->drawLineMap(worker->getPosition().x, worker->getPosition().y, depot->getPosition().x, depot->getPosition().y, BWAPI::Colors::Orange);
@@ -664,32 +678,32 @@ void WorkerManager::drawWorkerInformation(int x, int y)
 
 	int yspace = 0;
 
-	for (BWAPI::UnitInterface* unit : workerData.getWorkers())
+	for (auto & unit : workerData.getWorkers())
 	{
-        UAB_ASSERT(unit != NULL, "Worker was null");
+        UAB_ASSERT(unit != nullptr, "Worker was null");
 
 		BWAPI::Broodwar->drawTextScreen(x, y+40+((yspace)*10), "\x03 %d", unit->getID());
 		BWAPI::Broodwar->drawTextScreen(x+50, y+40+((yspace++)*10), "\x03 %c", workerData.getJobCode(unit));
 	}
 }
 
-bool WorkerManager::isFree(BWAPI::UnitInterface* worker)
+bool WorkerManager::isFree(BWAPI::Unit worker)
 {
-    UAB_ASSERT(worker != NULL, "Worker was null");
+    UAB_ASSERT(worker != nullptr, "Worker was null");
 
 	return workerData.getWorkerJob(worker) == WorkerData::Minerals || workerData.getWorkerJob(worker) == WorkerData::Idle;
 }
 
-bool WorkerManager::isWorkerScout(BWAPI::UnitInterface* worker)
+bool WorkerManager::isWorkerScout(BWAPI::Unit worker)
 {
-    UAB_ASSERT(worker != NULL, "Worker was null");
+    UAB_ASSERT(worker != nullptr, "Worker was null");
 
 	return (workerData.getWorkerJob(worker) == WorkerData::Scout);
 }
 
-bool WorkerManager::isBuilder(BWAPI::UnitInterface* worker)
+bool WorkerManager::isBuilder(BWAPI::Unit worker)
 {
-    UAB_ASSERT(worker != NULL, "Worker was null");
+    UAB_ASSERT(worker != nullptr, "Worker was null");
 
 	return (workerData.getWorkerJob(worker) == WorkerData::Build);
 }
@@ -707,15 +721,4 @@ int WorkerManager::getNumIdleWorkers()
 int WorkerManager::getNumGasWorkers() 
 {
 	return workerData.getNumGasWorkers();
-}
-
-WorkerManager & WorkerManager::Instance() 
-{
-	static WorkerManager instance;
-	return instance;
-}
-
-const WorkerData & WorkerManager::getData() const
-{
-	return workerData;
 }

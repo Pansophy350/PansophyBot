@@ -48,7 +48,7 @@ class GameState
     ResourceCountType           _minerals; 			        // current mineral count
     ResourceCountType           _gas;						// current gas count
 
-    Vec<ActionPerformed, 100>   _actionsPerformed;
+    std::vector<ActionPerformed>   _actionsPerformed;
 
     const FrameCountType        raceSpecificWhenReady(const ActionType & a) const;
     void                        fixZergUnitMasks();
@@ -68,7 +68,7 @@ public:
 // constructor based on BWAPI::Game only makes sense if using VS
 // we won't be using this if we're compiling to emscripten or linux
 #ifdef _MSC_VER
-    GameState(BWAPI::GameWrapper & game, BWAPI::PlayerInterface * player);
+    GameState(BWAPI::GameWrapper & game, BWAPI::PlayerInterface * player, const std::vector<BWAPI::UnitType> & buildingsQueued);
 #endif
 
 	std::vector<ActionType>     doAction(const ActionType & action);

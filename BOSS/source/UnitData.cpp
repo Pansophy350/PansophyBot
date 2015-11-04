@@ -35,7 +35,7 @@ const FrameCountType UnitData::getWhenBuildingCanBuild(const ActionType & action
 }
 
 // only used for adding existing buildings from a BWAPI Game * object
-void UnitData::addCompletedBuilding(const ActionType & action, const FrameCountType timeUntilFree, const ActionType & constructing, const ActionType & addon)
+void UnitData::addCompletedBuilding(const ActionType & action, const FrameCountType timeUntilFree, const ActionType & constructing, const ActionType & addon, int numLarva)
 {
     _numUnits[action.ID()] += action.numProduced();
 
@@ -55,9 +55,9 @@ void UnitData::addCompletedBuilding(const ActionType & action, const FrameCountT
 	}
 
     // special case for hatcheries
-    if (action.isBuilding() && (action.getUnitType() == BWAPI::UnitTypes::Zerg_Hatchery))
+    if (action.getRace() == Races::Zerg && action.isResourceDepot())
     {
-        _hatcheryData.addHatchery(1);
+        _hatcheryData.addHatchery(numLarva);
     }
 }
 
@@ -66,7 +66,7 @@ void UnitData::addCompletedAction(const ActionType & action, bool wasBuilt)
     const static ActionType Lair = ActionTypes::GetActionType("Zerg_Lair");
     const static ActionType Hive = ActionTypes::GetActionType("Zerg_Hive");
 
-    _numUnits[action.ID()] += action.numProduced();
+    _numUnits[action.ID()] += wasBuilt ? action.numProduced() : 1;
 
     if (wasBuilt)
     {

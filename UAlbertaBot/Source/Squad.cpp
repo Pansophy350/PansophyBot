@@ -58,6 +58,7 @@ void Squad::update()
 		_rangedManager.regroup(regroupPosition);
         _tankManager.regroup(regroupPosition);
         _medicManager.regroup(regroupPosition);
+		_casterManager.regroup(regroupPosition);
 	}
 	else // otherwise, execute micro
 	{
@@ -65,6 +66,7 @@ void Squad::update()
 		_rangedManager.execute(_order);
         _tankManager.execute(_order);
         _medicManager.execute(_order);
+		_casterManager.execute(_order);
 		_transportManager.update();
 
 		_detectorManager.setUnitClosestToEnemy(unitClosestToEnemy());
@@ -145,6 +147,7 @@ void Squad::addUnitsToMicroManagers()
 	BWAPI::Unitset transportUnits;
     BWAPI::Unitset tankUnits;
     BWAPI::Unitset medicUnits;
+	BWAPI::Unitset casterUnits;
 
 	// add _units to micro managers
 	for (auto & unit : _units)
@@ -156,6 +159,12 @@ void Squad::addUnitsToMicroManagers()
             {
                 medicUnits.insert(unit);
             }
+			//select caster units
+			//ToDo: expand beyond high templar
+			else if (unit->getType() == BWAPI::UnitTypes::Protoss_High_Templar)
+			{
+				casterUnits.insert(unit);
+			}
             else if (unit->getType() == BWAPI::UnitTypes::Terran_Siege_Tank_Siege_Mode || unit->getType() == BWAPI::UnitTypes::Terran_Siege_Tank_Tank_Mode)
             {
                 tankUnits.insert(unit);
@@ -188,6 +197,7 @@ void Squad::addUnitsToMicroManagers()
 	_transportManager.setUnits(transportUnits);
     _tankManager.setUnits(tankUnits);
     _medicManager.setUnits(medicUnits);
+	_casterManager.setUnits(casterUnits);
 }
 
 // calculates whether or not to regroup

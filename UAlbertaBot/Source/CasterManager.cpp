@@ -23,6 +23,7 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 
 	for (auto & casterUnit : casterUnits)
 	{
+		BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 2, BWAPI::Colors::Green, true);
 
 		// if the order is to attack or defend
 		if (order.getType() == SquadOrderTypes::Attack || order.getType() == SquadOrderTypes::Defend)
@@ -153,14 +154,15 @@ int CasterManager::getAttackPriority(BWAPI::Unit casterUnit, BWAPI::Unit target)
 
 bool CasterManager::canCast(BWAPI::Unit casterUnit){
 	//psi-storm costs 75 energy so we can cast it if we have this
-	return casterUnit->getEnergy() >= 75;
+	return casterUnit->getEnergy() >= BWAPI::TechTypes::Psionic_Storm.energyCost();
 }
 
 //return the bestTarget location we can find for casting psi-storm and the value of doing so
 std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets)
 {
 	//ToDo: implement
-	return std::pair<int, BWAPI::Position>(0, casterUnit->getPosition());
+	BWAPI::Unit first = *(targets.begin());
+	return std::pair<int, BWAPI::Position>(1, first->getPosition());
 }
 
 //return a measure of value (sum of attack priority?) for casting psi-storm at the given location

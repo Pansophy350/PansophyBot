@@ -113,6 +113,11 @@ const SparCraft::Unit CombatSimulation::getSparCraftUnit(const UnitInfo & ui) co
 		type = BWAPI::UnitTypes::Terran_Marine;
 	}
 
+	//and treat high templar as dragoons
+	if (type == BWAPI::UnitTypes::Protoss_High_Templar){
+		type = BWAPI::UnitTypes::Protoss_Dragoon;
+	}
+
     return SparCraft::Unit( ui.type, 
                             SparCraft::Position(ui.lastPosition), 
                             ui.unitID, 

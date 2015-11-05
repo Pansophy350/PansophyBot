@@ -145,6 +145,7 @@ void Squad::addUnitsToMicroManagers()
 	BWAPI::Unitset transportUnits;
     BWAPI::Unitset tankUnits;
     BWAPI::Unitset medicUnits;
+	BWAPI::Unitset casterUnits;
 
 	// add _units to micro managers
 	for (auto & unit : _units)
@@ -179,6 +180,12 @@ void Squad::addUnitsToMicroManagers()
 			{
 				meleeUnits.insert(unit);
 			}
+			//select caster units
+			//ToDo: expand beyond high templar
+			else if (unit->getType() == BWAPI::UnitTypes::Protoss_High_Templar)
+			{
+				casterUnits.insert(unit);
+			}
 		}
 	}
 
@@ -188,6 +195,7 @@ void Squad::addUnitsToMicroManagers()
 	_transportManager.setUnits(transportUnits);
     _tankManager.setUnits(tankUnits);
     _medicManager.setUnits(medicUnits);
+	_casterManager.setUnits(casterUnits);
 }
 
 // calculates whether or not to regroup

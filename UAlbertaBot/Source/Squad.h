@@ -11,6 +11,7 @@
 #include "CombatSimulation.h"
 #include "TankManager.h"
 #include "MedicManager.h"
+#include "CasterManager.h"
 
 namespace UAlbertaBot
 {
@@ -27,6 +28,7 @@ class Squad
 	SquadOrder          _order;
 	MeleeManager        _meleeManager;
 	RangedManager       _rangedManager;
+	CasterManager       _casterManager;
 	DetectorManager     _detectorManager;
 	TransportManager    _transportManager;
     TankManager         _tankManager;

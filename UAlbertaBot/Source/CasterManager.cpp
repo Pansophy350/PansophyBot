@@ -167,11 +167,53 @@ getBestTarget
 */
 std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets)
 {
-	BWAPI::Unit first = *(targets.begin());
-	int closestDist  = casterUnit->getDistance(first);
+	
+	//max...min
 	std::priority_queue < BWAPI::Unit, std::vector<BWAPI::Unit>, Unit_Compare::Min > min;
+	//min...max
 	std::priority_queue < BWAPI::Unit, std::vector<BWAPI::Unit>, Unit_Compare::Max > max;
-	return std::pair<int, BWAPI::Position>(1, first->getPosition());
+	min.push( *(targets.begin()) );
+
+	//data use to know where to place unit 
+	int minSize = 1;
+	int maxSize = 0;
+
+	//find center unit of a group relative to the caster
+	for (auto target : targets)
+	{
+		//if found new min
+		if ( casterUnit->getDistance(target) < min.top()->getDistance(target) )
+		{
+			if (minSize > maxSize)
+			{
+				maxSize++;
+				max.push( min.top() );
+				min.pop();
+				min.push(target);
+			}
+			else
+			{
+				minSize++;
+				min.push(target);
+			}
+		}
+		else
+		{
+			if (minSize < maxSize)
+			{
+				minSize++;
+				min.push(max.top());
+				max.pop();
+				max.push(target);
+			}
+			else
+			{
+				maxSize++;
+				max.push(target);
+			}
+		}
+	}
+	return std::pair<int, BWAPI::Position>(1, min.top()->getPosition());
 }
 
 //return a measure of value (sum of attack priority?) for casting psi-storm at the given location

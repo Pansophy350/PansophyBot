@@ -23,7 +23,7 @@ public:
 			BWAPI::Position t1p = t1->getPosition();
 			BWAPI::Position t2p = t2->getPosition();
 			//based by top left corner of map
-			if (t1p.getLength() < t1p.getLength()) return true;
+			if (t1p.getLength() > t1p.getLength()) return true;
 			return false;
 		}
 	};

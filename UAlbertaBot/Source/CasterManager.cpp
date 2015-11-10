@@ -1,5 +1,7 @@
 #include "CasterManager.h"
 #include "UnitUtil.h"
+#include <queue>
+#include <vector>
 
 using namespace UAlbertaBot;
 
@@ -167,7 +169,8 @@ std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterU
 {
 	BWAPI::Unit first = *(targets.begin());
 	int closestDist  = casterUnit->getDistance(first);
-
+	std::priority_queue < BWAPI::Unit, std::vector<BWAPI::Unit>, Unit_Compare::Min > min;
+	std::priority_queue < BWAPI::Unit, std::vector<BWAPI::Unit>, Unit_Compare::Max > max;
 	return std::pair<int, BWAPI::Position>(1, first->getPosition());
 }
 

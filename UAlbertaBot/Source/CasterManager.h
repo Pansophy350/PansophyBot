@@ -2,6 +2,7 @@
 
 #include <Common.h>
 #include "MicroManager.h"
+#include "Unit_Compare.h"
 
 namespace UAlbertaBot
 {

@@ -158,10 +158,16 @@ bool CasterManager::canCast(BWAPI::Unit casterUnit){
 }
 
 //return the bestTarget location we can find for casting psi-storm and the value of doing so
+/*
+getBestTarget
+|-> evaluateCastPosition
+|-> castOnLocation
+*/
 std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets)
 {
-	//ToDo: implement
 	BWAPI::Unit first = *(targets.begin());
+	int closestDist  = casterUnit->getDistance(first);
+
 	return std::pair<int, BWAPI::Position>(1, first->getPosition());
 }
 

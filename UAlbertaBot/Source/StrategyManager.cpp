@@ -59,7 +59,7 @@ const bool StrategyManager::shouldExpandNow() const
     int minute          = frame / (24*60);
 
 	// if we have a ton of idle workers then we need a new expansion
-	if (WorkerManager::Instance().getNumIdleWorkers() > 10)
+	if (WorkerManager::Instance().getNumIdleWorkers() > 8)
 	{
 		return true;
 	}
@@ -129,13 +129,16 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 
 	if (Config::Strategy::StrategyName == "Protoss_Pansophy")
 	{
-		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 8));
+		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 6));
+
+		if (UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Protoss_Zealot) > 10){
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + 2));
+		}
 
 		// once we have a 2nd nexus start making dragoons
 		if (numNexusAll >= 2)
 		{
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 2));
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + 2));
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
 		}
 	}
     else if (Config::Strategy::StrategyName == "Protoss_ZealotRush")

@@ -118,7 +118,7 @@ const SparCraft::Unit CombatSimulation::getSparCraftUnit(const UnitInfo & ui) co
 		type = BWAPI::UnitTypes::Protoss_Dragoon;
 	}
 
-    return SparCraft::Unit( ui.type, 
+    return SparCraft::Unit( type, 
                             SparCraft::Position(ui.lastPosition), 
                             ui.unitID, 
                             getSparCraftPlayerID(ui.player), 

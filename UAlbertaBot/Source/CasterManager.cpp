@@ -23,6 +23,10 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 	BWAPI::Unitset casterUnitTargets;
 	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){ return u->isVisible(); });
 
+	//a collection of points that are being casted on
+	std::set<BWAPI::Position> castpoints;
+	castpoints.clear();
+
 	for (auto & casterUnit : casterUnits)
 	{
 		BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 2, BWAPI::Colors::Green, true);
@@ -39,7 +43,15 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 				BWAPI::Position target = valueAndPosition.second;
 				//if this target meets our castThreshold, cast on that target
 				if (target && (value > castThreshold)){
-					castOnLocation(casterUnit, target);
+
+					//checks if point is already being casted on
+					size_t tempSize = castpoints.size();
+					castpoints.insert(target);
+					if (tempSize < castpoints.size()){
+						//if not being casted on, cast on target 
+						castOnLocation(casterUnit, target);
+					}
+
 				}
 
 			}
@@ -213,7 +225,12 @@ std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterU
 			}
 		}
 	}
-	return std::pair<int, BWAPI::Position>(1, min.top()->getPosition());
+	//if a group of units
+	if (targets.size() > 2) { return std::pair<int, BWAPI::Position>(1, min.top()->getPosition()); }
+	//if low on hp
+	if (casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints()/2) ) { return std::pair<int, BWAPI::Position>(1, min.top()->getPosition()); }
+	//else no value for casting 
+	return std::pair<int, BWAPI::Position>(0, min.top()->getPosition());
 }
 
 //return a measure of value (sum of attack priority?) for casting psi-storm at the given location

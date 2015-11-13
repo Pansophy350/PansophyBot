@@ -125,8 +125,21 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
     int numScout            = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Protoss_Corsair);
     int numReaver           = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Protoss_Reaver);
     int numDarkTeplar       = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Protoss_Dark_Templar);
+	int numHighTemplar      = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Protoss_High_Templar);
 
-    if (Config::Strategy::StrategyName == "Protoss_ZealotRush")
+	if (Config::Strategy::StrategyName == "Protoss_Pansophy")
+	{
+		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 6));
+		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + 1));
+
+		// once we have a 2nd nexus start making dragoons
+		if (numNexusAll >= 2)
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 2));
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + 2));
+		}
+	}
+    else if (Config::Strategy::StrategyName == "Protoss_ZealotRush")
     {
         goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 8));
 

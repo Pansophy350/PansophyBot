@@ -22,7 +22,7 @@
         "WorkersDefendRush"         : true,
         "RetreatMeleeUnitShields"   : 0,
         "RetreatMeleeUnitHP"        : 0,
-        "InCombatRadius"            : 1000,
+        "InCombatRadius"            : 1050,
         "RegroupRadius"             : 300,
         "UnitNearEnemyRadius"       : 600
     },
@@ -32,13 +32,13 @@
         "BOSSFrameLimit"            : 160,
         "WorkersPerRefinery"        : 3,
         "BuildingSpacing"           : 1,
-        "PylonSpacing"              : 3
+        "PylonSpacing"              : 5
     },
 
     "Debug" :
     {
-        "ErrorLogFilename"          : "bwapi-data/AI/UAlbertaBot_ErrorLog.txt",
-        "LogAssertToErrorFile"      : false,
+        "ErrorLogFilename"          : "C:/StarCraft/bwapi-data/ai/UAlbertaBot_ErrorLog.txt",
+        "LogAssertToErrorFile"      : true,
         
         "DrawGameInfo"              : false,   
         "DrawUnitHealthBars"        : true,
@@ -68,7 +68,7 @@
         "UseCombatCommander"        : true,
         "UseBuildOrderSearch"       : true,
         "UseStrategyIO"             : true,
-        "UseAutoObserver"           : false
+        "UseAutoObserver"           : true
     },
     
     "Tools" :
@@ -78,15 +78,15 @@
     
     "Strategy" :
     {
-        "Protoss"                   : "Protoss_ZealotRush",
+        "Protoss"                   : "Protoss_Pansophy",
         "Terran"                    : "Terran_MarineRush",
         "Zerg"                      : "Zerg_ZerglingRush",
         
         "ScoutGasSteal"             : false,
         "ScoutHarassEnemy"          : true,
         
-        "ReadDirectory"             : "bwapi-data/read/",
-        "WriteDirectory"            : "bwapi-data/write/",
+        "ReadDirectory"             : "C:/StarCraft/bwapi-data/write/",
+        "WriteDirectory"            : "C:/StarCraft/bwapi-data/write/",
                 
         "UseEnemySpecificStrategy"  : true,
         "EnemySpecificStrategy"     :
@@ -98,7 +98,10 @@
         
         "Strategies" :
         {
-        	"Protoss_ZealotRush"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Pylon", "Probe", "Pylon", "Probe", "Pylon", "Gateway", "Zealot", "Zealot", "Probe", "Gateway", "Probe", "Zealot", "Gateway", "Zealot",  "Probe", "Zealot", "Zealot", "Probe", "Pylon", "Zealot", "Probe", "Pylon", "Probe", "Zealot", "Probe", "Zealot", "Zealot", "Zealot", "Zealot", "Pylon", "Probe", "Zealot", "Assimilator", "Zealot", "Zealot", "Probe", "Probe", "Pylon", "Zealot", "Cybernetics_Core", "Zealot", "Citadel_of_Adun", "Pylon", "Pylon", "Probe", "Probe", "Templar_Archives", "Psionic_Storm", "High_Templar", "Pylon", "High_Templar", "Zealot", "Zealot", "High_Templar", "Zealot", "Zealot", "High_Templar" ]},
+
+			"Protoss_Pansophy"      : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Pylon", "Pylon", "Pylon", "Gateway", "Zealot", "Zealot", "Probe", "Gateway", "Probe", "Zealot", "Gateway", "Zealot",  "Probe", "Zealot", "Zealot", "Probe", "Pylon", "Zealot", "Probe", "Pylon", "Probe", "Zealot", "Probe", "Zealot", "Zealot", "Zealot", "Zealot", "Pylon", "Probe", "Zealot", "Assimilator", "Zealot", "Zealot", "Probe", "Probe", "Pylon", "Zealot", "Cybernetics_Core", "Zealot", "Citadel_of_Adun", "Pylon", "Pylon", "Probe", "Probe", "Templar_Archives", "Psionic_Storm", "High_Templar", "Pylon", "High_Templar", "Zealot", "Zealot", "High_Templar" ]},
+
+            "Protoss_ZealotRush"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot",  "Probe", "Zealot", "Zealot", "Probe", "Pylon", "Zealot", "Gateway", "Probe", "Pylon", "Probe", "Zealot", "Probe", "Zealot", "Zealot", "Zealot", "Zealot", "Pylon", "Probe", "Zealot", "Zealot", "Zealot" ]},
 
             "Protoss_DragoonRush"   : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Probe", "Cybernetics_Core", "Probe", "Probe", "Gateway", "Singularity_Charge", "Dragoon", "Gateway", "Pylon", "Dragoon", "Dragoon", "Probe", "Gateway", "Pylon", "Probe", "Dragoon", "Dragoon", "Dragoon"]},
             "Protoss_DTRush"        : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Cybernetics_Core", "Probe", "Citadel_of_Adun", "Probe", "Templar_Archives", "Gateway", "Dark_Templar", "Dark_Templar", "Pylon", "Dark_Templar", "Dark_Templar", "Probe", "Pylon", "Probe" ]},

@@ -226,9 +226,9 @@ std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterU
 		}
 	}
 	//if a group of units
-	if (targets.size() > 2) { return std::pair<int, BWAPI::Position>(1, min.top()->getPosition()); }
+	if (targets.size() > 1) { return std::pair<int, BWAPI::Position>(1, min.top()->getPosition()); }
 	//if low on hp
-	if (casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints()/2) ) { return std::pair<int, BWAPI::Position>(1, min.top()->getPosition()); }
+	if (casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints()/1.5) ) { return std::pair<int, BWAPI::Position>(1, min.top()->getPosition()); }
 	//else no value for casting 
 	return std::pair<int, BWAPI::Position>(0, min.top()->getPosition());
 }

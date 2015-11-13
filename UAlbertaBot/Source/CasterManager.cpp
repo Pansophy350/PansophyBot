@@ -190,6 +190,7 @@ std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterU
 	int minSize = 1;
 	int maxSize = 0;
 
+
 	//find center unit of a group relative to the caster
 	for (auto target : targets)
 	{
@@ -198,38 +199,48 @@ std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterU
 		{
 			if (minSize > maxSize)
 			{
-				maxSize++;
-				max.push( min.top() );
-				min.pop();
-				min.push(target);
+				if (target->getDistance(casterUnit) > 12) {
+					maxSize++;
+					max.push(min.top());
+					min.pop();
+					min.push(target);
+				}
 			}
 			else
 			{
-				minSize++;
-				min.push(target);
+				if (target->getDistance(casterUnit) > 12) {
+					minSize++;
+					min.push(target);
+				}
 			}
 		}
 		else
 		{
 			if (minSize < maxSize)
 			{
-				minSize++;
-				min.push(max.top());
-				max.pop();
-				max.push(target);
+				if (target->getDistance(casterUnit) > 12) {
+					minSize++;
+					min.push(max.top());
+					max.pop();
+					max.push(target);
+				}
 			}
 			else
 			{
-				maxSize++;
-				max.push(target);
+				if (target->getDistance(casterUnit) > 12) {
+					maxSize++;
+					max.push(target);
+				}
 			}
 		}
 	}
-	//if a group of units
-	if (targets.size() > 1) { return std::pair<int, BWAPI::Position>(1, min.top()->getPosition()); }
-	//if low on hp
-	if (casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints()/1.5) ) { return std::pair<int, BWAPI::Position>(1, min.top()->getPosition()); }
+
 	//else no value for casting 
+	if (min.top()->getDistance(casterUnit) < 12) {	return std::pair<int, BWAPI::Position>(0, min.top()->getPosition()); }
+	//if a group of units
+	if (targets.size() > 3) { return std::pair<int, BWAPI::Position>(1, min.top()->getPosition()); }
+	//if low on hp
+	if (casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints()/2) ) { return std::pair<int, BWAPI::Position>(1, min.top()->getPosition()); }
 	return std::pair<int, BWAPI::Position>(0, min.top()->getPosition());
 }
 

@@ -129,10 +129,16 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 
 	if (Config::Strategy::StrategyName == "Protoss_Pansophy")
 	{
-		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 6));
+		if (numZealots < 10) {
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 6));
+		}
+		else {
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 3));
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + 2));
+		}
 
-		if (UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Protoss_Zealot) > 10){
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + 2));
+		if ( (numZealots + numDragoons + numDarkTeplar) > 8){
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + 1));
 		}
 
 		// once we have a 2nd nexus start making dragoons

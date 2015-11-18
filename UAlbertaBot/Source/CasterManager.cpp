@@ -19,9 +19,9 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 {
 	const BWAPI::Unitset & casterUnits = getUnits();
 
-	// figure out targets
+	// figure out targets omit buildings since psi-storm does not work on them
 	BWAPI::Unitset casterUnitTargets;
-	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){ return u->isVisible(); });
+	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){ return u->isVisible() && !u->getType().isBuilding();});
 
 	//a collection of points that are being casted on
 	std::set<BWAPI::Position> castpoints;

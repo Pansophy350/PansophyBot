@@ -21,12 +21,12 @@ namespace UAlbertaBot
 		BWAPI::Unit getTarget(BWAPI::Unit rangedUnit, const BWAPI::Unitset & targets);
 
 		void checkTargets(const BWAPI::Unitset & targets);
-		int evaluateCastPosition(const BWAPI::Position p);
+		int evaluateCastPosition(const BWAPI::Position p, const BWAPI::Unitset & targets);
 		void castOnLocation(BWAPI::Unit casterUnit, const BWAPI::Position p);
-		std::pair<int, BWAPI::Position> getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets); 
+		std::pair<int, BWAPI::Position> getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets);
 		bool canCast(BWAPI::Unit casterUnit);
 	private:
 		//only cast if we find a target location who's value exceeds this
-		int castThreshold = 0;
+		int castThreshold = 200;
 	};
 }

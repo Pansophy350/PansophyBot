@@ -32,9 +32,6 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 	BWAPI::Unitset casterUnitTargets;
 	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){ return u->isVisible() && !u->getType().isBuilding();});
 
-	//a collection of units already effected by a psi-storm
-	BWAPI::Unitset covered;
-
 	for (auto & casterUnit : casterUnits)
 	{
 		BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 2, BWAPI::Colors::Green, true);
@@ -50,14 +47,14 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 				int value = valueAndPosition.first;
 				BWAPI::Position target = valueAndPosition.second;
 				//if this target meets our castThreshold, cast on that target
-				if (target && (value > castThreshold) && casterUnit->getDistance(target) < 100){
+				if (target && (value > castThreshold) && casterUnit->getDistance(target) < 300){
 					//if not being casted on, cast on target
 					removeEffected(target, casterUnitTargets);
 					castOnLocation(casterUnit, target);
 				}
-				else if(casterUnit->getDistance(target) > 200){
+				else if(casterUnit->getDistance(target) >= 300){
 					//even if we're not going to cast move toward the best target to prepare
-					Micro::SmartAttackMove(casterUnit, order.getPosition());
+					Micro::SmartMove(casterUnit, order.getPosition());
 				}
 
 			}
@@ -106,8 +103,8 @@ int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Un
 {
 	int value = 0;
 	for (auto effected : targets){
-		//approximation of units in effected area
-		if (effected->getDistance(p) <= 48){
+		//slightly generous approximation of units in effected area
+		if (effected->getDistance(p) <= 55){
 			value += effected->getType().gasPrice() + effected->getType().mineralPrice();
 		}
 	}

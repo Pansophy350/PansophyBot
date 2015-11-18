@@ -46,14 +46,15 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 				std::pair<int, BWAPI::Position> valueAndPosition = getBestTarget(casterUnit, casterUnitTargets);
 				int value = valueAndPosition.first;
 				BWAPI::Position target = valueAndPosition.second;
-				//if this target meets our castThreshold, cast on that target
-				if (target && (value > castThreshold) && casterUnit->getDistance(target) < 300){
+
+				//if this target meets our castThreshold, or we are significantly damaged cast on that target
+				if (target && casterUnit->getDistance(target) < 300 && (value > castThreshold || (casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5)))){
 					//if not being casted on, cast on target
 					removeEffected(target, casterUnitTargets);
 					castOnLocation(casterUnit, target);
 				}
-				else if(casterUnit->getDistance(target) >= 300){
-					//even if we're not going to cast move toward the best target to prepare
+				//even if we're too far away move towards best target to prepare
+				else if (casterUnit->getDistance(target) > 300) {
 					Micro::SmartMove(casterUnit, order.getPosition());
 				}
 
@@ -106,6 +107,8 @@ int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Un
 		//slightly generous approximation of units in effected area
 		if (effected->getDistance(p) <= 55){
 			value += effected->getType().gasPrice() + effected->getType().mineralPrice();
+			//give bonus for hitting cloacked units since other units may not be able to hit them
+			if (effected->getType().isCloakable()) value *= 2;
 		}
 	}
 	return value;

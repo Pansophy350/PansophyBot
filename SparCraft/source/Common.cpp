@@ -78,7 +78,7 @@ namespace SparCraft
                 return false;
             }
 
-            if (type.isSpellcaster() && !type == BWAPI::UnitTypes::Protoss_High_Templar)
+            if (type.isSpellcaster())
             {
                 return false;
             }

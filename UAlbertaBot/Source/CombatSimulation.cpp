@@ -28,7 +28,7 @@ void CombatSimulation::setCombatUnits(const BWAPI::Position & center, const int 
             continue;
         }
 
-        if (InformationManager::Instance().isCombatUnit(unit->getType()) && SparCraft::System::isSupportedUnitType(unit->getType()))
+        if (InformationManager::Instance().isCombatUnit(unit->getType()) && (SparCraft::System::isSupportedUnitType(unit->getType()) || unit->getType() == BWAPI::UnitTypes::Protoss_High_Templar))
 		{
             try
             {

@@ -14,18 +14,23 @@ void CasterManager::executeMicro(const BWAPI::Unitset & targets)
 	checkTargets(targets);
 }
 
+//helper function to remove targets once they are targeted by a psi-storm
+void removeEffected(BWAPI::Position castLocation, BWAPI::Unitset & targets){
+	for (auto effected : targets){
+		//approximation of units in effected area
+		if (effected->getDistance(castLocation) <= 48){
+			targets.erase(effected);
+		}
+	}
+}
 
 void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 {
 	const BWAPI::Unitset & casterUnits = getUnits();
 
-	// figure out targets
+	// figure out targets omit buildings since psi-storm does not work on them
 	BWAPI::Unitset casterUnitTargets;
-	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){ return u->isVisible(); });
-
-	//a collection of points that are being casted on
-	std::set<BWAPI::Position> castpoints;
-	castpoints.clear();
+	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){ return u->isVisible() && !u->getType().isBuilding();});
 
 	for (auto & casterUnit : casterUnits)
 	{
@@ -41,22 +46,26 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 				std::pair<int, BWAPI::Position> valueAndPosition = getBestTarget(casterUnit, casterUnitTargets);
 				int value = valueAndPosition.first;
 				BWAPI::Position target = valueAndPosition.second;
-				//if this target meets our castThreshold, cast on that target
-				if (target && (value > castThreshold)){
 
-					//checks if point is already being casted on
-					size_t tempSize = castpoints.size();
-					castpoints.insert(target);
-					if (tempSize < castpoints.size()){
-						//if not being casted on, cast on target 
-						castOnLocation(casterUnit, target);
-					}
-
+				//if this target meets our castThreshold, or we are significantly damaged cast on that target
+				if (target && casterUnit->getDistance(target) < 300 && (value > castThreshold || (casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5)))){
+					//if not being casted on, cast on target
+					removeEffected(target, casterUnitTargets);
+					castOnLocation(casterUnit, target);
+				}
+				//even if we're too far away move towards best target to prepare
+				else if (casterUnit->getDistance(target) > 300) {
+					Micro::SmartMove(casterUnit, order.getPosition());
 				}
 
 			}
+			//if we don't have the energy to cast just retreat
+			else if (!canCast(casterUnit)){
+				BWAPI::Position fleeTo(BWAPI::Broodwar->self()->getStartLocation());
+				Micro::SmartMove(casterUnit, fleeTo);
+			}
 			// if there are no targets
-			else if (casterUnitTargets.empty())
+			else
 			{
 				// if we're not near the order position
 				if (casterUnit->getDistance(order.getPosition()) > 100)
@@ -65,104 +74,7 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 					Micro::SmartAttackMove(casterUnit, order.getPosition());
 				}
 			}
-			else if (!canCast(casterUnit)){
-				//ToDo: tell unit to stay out of enemy range (or prehaps merge into archon) if it doesn't have the energy to cast
-			}
 		}
-	}
-}
-
-
-
-
-// get the attack priority of a type in relation to a zergling
-int CasterManager::getAttackPriority(BWAPI::Unit casterUnit, BWAPI::Unit target)
-{
-	BWAPI::UnitType rangedType = casterUnit->getType();
-	BWAPI::UnitType targetType = target->getType();
-
-
-	if (casterUnit->getType() == BWAPI::UnitTypes::Zerg_Scourge)
-	{
-		if (target->getType() == BWAPI::UnitTypes::Protoss_Carrier)
-		{
-
-			return 100;
-		}
-
-		if (target->getType() == BWAPI::UnitTypes::Protoss_Corsair)
-		{
-			return 90;
-		}
-	}
-
-	bool isThreat = rangedType.isFlyer() ? targetType.airWeapon() != BWAPI::WeaponTypes::None : targetType.groundWeapon() != BWAPI::WeaponTypes::None;
-
-	if (target->getType().isWorker())
-	{
-		isThreat = false;
-	}
-
-	if (target->getType() == BWAPI::UnitTypes::Zerg_Larva || target->getType() == BWAPI::UnitTypes::Zerg_Egg)
-	{
-		return 0;
-	}
-
-	if (casterUnit->isFlying() && target->getType() == BWAPI::UnitTypes::Protoss_Carrier)
-	{
-		return 101;
-	}
-
-	// if the target is building something near our base something is fishy
-	BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
-	if (target->getType().isWorker() && (target->isConstructing() || target->isRepairing()) && target->getDistance(ourBasePosition) < 1200)
-	{
-		return 100;
-	}
-
-	if (target->getType().isBuilding() && (target->isCompleted() || target->isBeingConstructed()) && target->getDistance(ourBasePosition) < 1200)
-	{
-		return 90;
-	}
-
-	// highest priority is something that can attack us or aid in combat
-	if (targetType == BWAPI::UnitTypes::Terran_Bunker || isThreat)
-	{
-		return 11;
-	}
-	// next priority is worker
-	else if (targetType.isWorker())
-	{
-		if (casterUnit->getType() == BWAPI::UnitTypes::Terran_Vulture)
-		{
-			return 11;
-		}
-
-		return 11;
-	}
-	// next is special buildings
-	else if (targetType == BWAPI::UnitTypes::Zerg_Spawning_Pool)
-	{
-		return 5;
-	}
-	// next is special buildings
-	else if (targetType == BWAPI::UnitTypes::Protoss_Pylon)
-	{
-		return 5;
-	}
-	// next is buildings that cost gas
-	else if (targetType.gasPrice() > 0)
-	{
-		return 4;
-	}
-	else if (targetType.mineralPrice() > 0)
-	{
-		return 3;
-	}
-	// then everything else
-	else
-	{
-		return 1;
 	}
 }
 
@@ -172,83 +84,34 @@ bool CasterManager::canCast(BWAPI::Unit casterUnit){
 }
 
 //return the bestTarget location we can find for casting psi-storm and the value of doing so
-/*
-getBestTarget
-|-> evaluateCastPosition
-|-> castOnLocation
-*/
 std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets)
 {
-	
-	//max...min
-	std::priority_queue < BWAPI::Unit, std::vector<BWAPI::Unit>, Unit_Compare::Min > min;
-	//min...max
-	std::priority_queue < BWAPI::Unit, std::vector<BWAPI::Unit>, Unit_Compare::Max > max;
-	min.push( *(targets.begin()) );
-
-	//data use to know where to place unit 
-	int minSize = 1;
-	int maxSize = 0;
-
-
-	//find center unit of a group relative to the caster
-	for (auto target : targets)
-	{
-		//if found new min
-		if ( casterUnit->getDistance(target) < min.top()->getDistance(target) )
-		{
-			if (minSize > maxSize)
-			{
-				if (target->getDistance(casterUnit) > 12) {
-					maxSize++;
-					max.push(min.top());
-					min.pop();
-					min.push(target);
-				}
-			}
-			else
-			{
-				if (target->getDistance(casterUnit) > 12) {
-					minSize++;
-					min.push(target);
-				}
-			}
-		}
-		else
-		{
-			if (minSize < maxSize)
-			{
-				if (target->getDistance(casterUnit) > 12) {
-					minSize++;
-					min.push(max.top());
-					max.pop();
-					max.push(target);
-				}
-			}
-			else
-			{
-				if (target->getDistance(casterUnit) > 12) {
-					maxSize++;
-					max.push(target);
-				}
-			}
+	int maxvalue = 0;
+	BWAPI::Unit besttarget = NULL;
+	BWAPI::Unitset targetCoverage;
+	for (auto target : targets){
+		int value = evaluateCastPosition(target->getPosition(), targets);
+		if (value > maxvalue){
+			maxvalue = value;
+			besttarget = target;
 		}
 	}
-
-	//else no value for casting 
-	if (min.top()->getDistance(casterUnit) < 12) {	return std::pair<int, BWAPI::Position>(0, min.top()->getPosition()); }
-	//if a group of units
-	if (targets.size() > 3) { return std::pair<int, BWAPI::Position>(1, min.top()->getPosition()); }
-	//if low on hp
-	if (casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints()/2) ) { return std::pair<int, BWAPI::Position>(1, min.top()->getPosition()); }
-	return std::pair<int, BWAPI::Position>(0, min.top()->getPosition());
+	return std::pair<int, BWAPI::Position>(maxvalue, besttarget->getPosition());
 }
 
-//return a measure of value (sum of attack priority?) for casting psi-storm at the given location
-int CasterManager::evaluateCastPosition(const BWAPI::Position p)
+//return a measure of value (sum of gasPrice+minearlPrice of units in range) for casting psi-storm at the given location
+int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Unitset & targets)
 {
-	//ToDo: implement
-	return 0;
+	int value = 0;
+	for (auto effected : targets){
+		//slightly generous approximation of units in effected area
+		if (effected->getDistance(p) <= 55){
+			value += effected->getType().gasPrice() + effected->getType().mineralPrice();
+			//give bonus for hitting cloacked units since other units may not be able to hit them
+			if (effected->getType().isCloakable()) value *= 2;
+		}
+	}
+	return value;
 }
 
 //tell the given unit to cast psi-storm on the given location

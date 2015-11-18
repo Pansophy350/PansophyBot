@@ -8,8 +8,8 @@
         
     "BWAPI" : 
     {
-        "SetLocalSpeed"             : 0,
-        "SetFrameSkip"              : 20,
+        "SetLocalSpeed"             : 10,
+        "SetFrameSkip"              : 5,
         "UserInput"                 : true,
         "CompleteMapInformation"    : false
     },
@@ -99,7 +99,7 @@
         "Strategies" :
         {
 
-			"Protoss_Pansophy"      : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot", "Pylon", "Assimilator", "Zealot", "Zealot", "Zealot", "Cybernetics_Core", "Zealot", "Zealot", "Zealot", "Citadel_of_Adun", "Probe", "Probe", "Templar_Archives", "Psionic_Storm", "High_Templar", "Singularity_Charge", "Dark_Templar" ]},
+	    "Protoss_Pansophy"      : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot", "Pylon", "Assimilator", "Zealot", "Zealot", "Zealot", "Cybernetics_Core", "Zealot", "Zealot", "Zealot", "Citadel_of_Adun", "Probe", "Probe", "Templar_Archives", "Psionic_Storm", "High_Templar", "Singularity_Charge", "Dark_Templar" ]},
 
             "Protoss_ZealotRush"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot",  "Probe", "Zealot", "Zealot", "Probe", "Pylon", "Zealot", "Gateway", "Probe", "Pylon", "Probe", "Zealot", "Probe", "Zealot", "Zealot", "Zealot", "Zealot", "Pylon", "Probe", "Zealot", "Zealot", "Zealot" ]},
 

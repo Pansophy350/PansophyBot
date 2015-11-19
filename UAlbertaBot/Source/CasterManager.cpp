@@ -71,7 +71,7 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 				if (casterUnit->getDistance(order.getPosition()) > 100)
 				{
 					// move to it
-					Micro::SmartAttackMove(casterUnit, order.getPosition());
+					Micro::SmartMove(casterUnit, order.getPosition());
 				}
 			}
 		}

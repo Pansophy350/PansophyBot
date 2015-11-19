@@ -31,11 +31,11 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 
 	//keep a list of friendly units to try to avoid targeting them
 	BWAPI::Unitset friendlyUnits;
-	std::copy_if(ourUnits.begin(), ourUnits.end(), std::inserter(friendlyUnits, friendlyUnits.end()), [](BWAPI::Unit u){return !u->getType().isBuilding();});
+	std::copy_if(ourUnits.begin(), ourUnits.end(), std::inserter(friendlyUnits, friendlyUnits.end()), [](BWAPI::Unit u){return u->isVisible() && !u->getType().isBuilding();});
 
 	// figure out targets omit buildings since psi-storm does not work on them
 	BWAPI::Unitset casterUnitTargets;
-	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){return !u->getType().isBuilding();});
+	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){return u->isVisible() && !u->getType().isBuilding();});
 
 	for (auto & casterUnit : casterUnits)
 	{
@@ -91,9 +91,9 @@ bool CasterManager::canCast(BWAPI::Unit casterUnit){
 //return the bestTarget location we can find for casting psi-storm and the value of doing so
 std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly)
 {
+	//if we can't do better than 0 value just return arbitrary position and 0 value
 	int maxvalue = 0;
 	BWAPI::Unit besttarget = NULL;
-	BWAPI::Unitset targetCoverage;
 	for (auto target : targets){
 		int value = evaluateCastPosition(target->getPosition(), targets, friendly);
 		if (value > maxvalue){
@@ -101,6 +101,7 @@ std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterU
 			besttarget = target;
 		}
 	}
+	if (besttarget == NULL) return std::pair<int, BWAPI::Position>(0,BWAPI::Position(0,0));
 	return std::pair<int, BWAPI::Position>(maxvalue, besttarget->getPosition());
 }
 
@@ -118,7 +119,7 @@ int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Un
 	}
 	for (auto &effected : friendly){
 		if (effected->getDistance(p) <= 55){
-			value -= effected->getType().gasPrice() + effected->getType().mineralPrice();
+			value -= 100; //effected->getType().gasPrice() + effected->getType().mineralPrice();
 		}
 	}
 	return value;

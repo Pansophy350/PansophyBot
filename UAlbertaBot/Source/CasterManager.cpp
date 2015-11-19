@@ -27,10 +27,15 @@ void removeEffected(BWAPI::Position castLocation, BWAPI::Unitset & targets){
 void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 {
 	const BWAPI::Unitset & casterUnits = getUnits();
+	const BWAPI::Unitset & ourUnits = BWAPI::Broodwar->self()->getUnits();
+
+	//keep a list of friendly units to try to avoid targeting them
+	BWAPI::Unitset friendlyUnits;
+	std::copy_if(ourUnits.begin(), ourUnits.end(), std::inserter(friendlyUnits, friendlyUnits.end()), [](BWAPI::Unit u){return !u->getType().isBuilding();});
 
 	// figure out targets omit buildings since psi-storm does not work on them
 	BWAPI::Unitset casterUnitTargets;
-	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){ return u->isVisible() && !u->getType().isBuilding();});
+	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){return !u->getType().isBuilding();});
 
 	for (auto & casterUnit : casterUnits)
 	{
@@ -43,7 +48,7 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 			if (!casterUnitTargets.empty() && canCast(casterUnit))
 			{
 				// find the best target location for this templar's psi-storm
-				std::pair<int, BWAPI::Position> valueAndPosition = getBestTarget(casterUnit, casterUnitTargets);
+				std::pair<int, BWAPI::Position> valueAndPosition = getBestTarget(casterUnit, casterUnitTargets, friendlyUnits);
 				int value = valueAndPosition.first;
 				BWAPI::Position target = valueAndPosition.second;
 
@@ -84,13 +89,13 @@ bool CasterManager::canCast(BWAPI::Unit casterUnit){
 }
 
 //return the bestTarget location we can find for casting psi-storm and the value of doing so
-std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets)
+std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly)
 {
 	int maxvalue = 0;
 	BWAPI::Unit besttarget = NULL;
 	BWAPI::Unitset targetCoverage;
 	for (auto target : targets){
-		int value = evaluateCastPosition(target->getPosition(), targets);
+		int value = evaluateCastPosition(target->getPosition(), targets, friendly);
 		if (value > maxvalue){
 			maxvalue = value;
 			besttarget = target;
@@ -100,15 +105,20 @@ std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterU
 }
 
 //return a measure of value (sum of gasPrice+minearlPrice of units in range) for casting psi-storm at the given location
-int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Unitset & targets)
+int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly)
 {
 	int value = 0;
-	for (auto effected : targets){
+	for (auto &effected : targets){
 		//slightly generous approximation of units in effected area
 		if (effected->getDistance(p) <= 55){
 			value += effected->getType().gasPrice() + effected->getType().mineralPrice();
 			//give bonus for hitting cloacked units since other units may not be able to hit them
 			if (effected->getType().isCloakable()) value *= 2;
+		}
+	}
+	for (auto &effected : friendly){
+		if (effected->getDistance(p) <= 55){
+			value -= effected->getType().gasPrice() + effected->getType().mineralPrice();
 		}
 	}
 	return value;

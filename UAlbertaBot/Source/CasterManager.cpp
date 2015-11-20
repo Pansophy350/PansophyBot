@@ -59,8 +59,13 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 					castOnLocation(casterUnit, target);
 				}
 				//even if we're too far away move towards best target to prepare
-				else if (casterUnit->getDistance(target) > 300) {
+				else if (casterUnit->getDistance(target) >= 300) {
 					Micro::SmartMove(casterUnit, order.getPosition());
+				}
+				//back off if we get too close and aren't going to cast right away
+				else if ((casterUnit->getDistance(target) < 300)){
+					BWAPI::Position fleeTo(BWAPI::Broodwar->self()->getStartLocation());
+					Micro::SmartMove(casterUnit, fleeTo);
 				}
 
 			}

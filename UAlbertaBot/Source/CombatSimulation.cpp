@@ -21,6 +21,7 @@ void CombatSimulation::setCombatUnits(const BWAPI::Position & center, const int 
 	MapGrid::Instance().GetUnits(ourCombatUnits, center, Config::Micro::CombatRegroupRadius, true, false);
 	InformationManager::Instance().getNearbyForce(enemyCombatUnits, center, BWAPI::Broodwar->enemy(), Config::Micro::CombatRegroupRadius);
 
+	int high_templar_count = 0;
 	for (auto & unit : ourCombatUnits)
 	{
         if (unit->getType().isWorker())
@@ -28,7 +29,11 @@ void CombatSimulation::setCombatUnits(const BWAPI::Position & center, const int 
             continue;
         }
 
-        if (InformationManager::Instance().isCombatUnit(unit->getType()) && (SparCraft::System::isSupportedUnitType(unit->getType()) || unit->getType() == BWAPI::UnitTypes::Protoss_High_Templar))
+		if (unit->getType() == BWAPI::UnitTypes::Protoss_High_Templar){
+			high_templar_count++;
+		}
+
+        if (InformationManager::Instance().isCombatUnit(unit->getType()) && (SparCraft::System::isSupportedUnitType(unit->getType())))
 		{
             try
             {
@@ -75,7 +80,17 @@ void CombatSimulation::setCombatUnits(const BWAPI::Position & center, const int 
 		{
             try
             {
-			    s.addUnit(getSparCraftUnit(ui));
+				if (ui.type.isBuilding()){
+					s.addUnit(getSparCraftUnit(ui));
+				}
+				else{
+					SparCraft::Unit u = getSparCraftUnit(ui);
+					//heuristic to account for hightemplar presence assume each does a bit of damage to all enemies
+					int effectiveHP = u.currentHP() - 20 * high_templar_count;
+					if (effectiveHP < 0) effectiveHP = 1;
+					u.updateCurrentHP((SparCraft::HealthType) effectiveHP);
+					s.addUnit(getSparCraftUnit(ui));
+				}
             }
             catch (int e)
             {

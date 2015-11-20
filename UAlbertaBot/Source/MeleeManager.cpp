@@ -16,6 +16,9 @@ void MeleeManager::executeMicro(const BWAPI::Unitset & targets)
 void MeleeManager::assignTargetsOld(const BWAPI::Unitset & targets)
 {
     const BWAPI::Unitset & meleeUnits = getUnits();
+	BWAPI::Bulletset bullets = BWAPI::Broodwar->getBullets();
+	BWAPI::Bulletset psistorms;
+	std::copy_if(bullets.begin(), bullets.end(), std::inserter(psistorms, psistorms.end()), [](BWAPI::Bullet b){return b->getType() == BWAPI::BulletTypes::Psionic_Storm; });
 
 	// figure out targets
 	BWAPI::Unitset meleeUnitTargets;
@@ -35,6 +38,14 @@ void MeleeManager::assignTargetsOld(const BWAPI::Unitset & targets)
 	// for each meleeUnit
 	for (auto & meleeUnit : meleeUnits)
 	{
+		//check if we are caught in a psi-storm if so get out
+		for (auto &p : psistorms){
+			int distance = meleeUnit->getDistance(p->getPosition());
+			if (distance < 55){
+				BWAPI::Position outside = (meleeUnit->getPosition() - p->getPosition())*(60 / distance);
+				continue;
+			}
+		}
 		// if the order is to attack or defend
 		if (order.getType() == SquadOrderTypes::Attack || order.getType() == SquadOrderTypes::Defend) 
         {

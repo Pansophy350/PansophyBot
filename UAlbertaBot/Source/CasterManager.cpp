@@ -53,12 +53,12 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 				BWAPI::Position target = valueAndPosition.second;
 
 				//if this target meets our castThreshold, or we are significantly damaged cast on that target
-				if (target && casterUnit->getDistance(target) < 300 && (value > castThreshold || (casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5)))){
+				if (target && casterUnit->getDistance(target) < 300 && (value > castThreshold || (value >= 0 && casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5)))){
 					//if not being casted on, cast on target
 					removeEffected(target, casterUnitTargets);
 					castOnLocation(casterUnit, target);
 				}
-				//even if we're too far away move towards best target to prepare
+				//if we are too far away move towards best target even if we don't plan to cast
 				else if (casterUnit->getDistance(target) >= 300) {
 					Micro::SmartMove(casterUnit, order.getPosition());
 				}

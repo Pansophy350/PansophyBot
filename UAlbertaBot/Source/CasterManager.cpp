@@ -119,7 +119,7 @@ int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Un
 	}
 	for (auto &effected : friendly){
 		if (effected->getDistance(p) <= 55){
-			value -= 100; //effected->getType().gasPrice() + effected->getType().mineralPrice();
+			value -= effected->getType().gasPrice() + effected->getType().mineralPrice();
 		}
 	}
 	return value;

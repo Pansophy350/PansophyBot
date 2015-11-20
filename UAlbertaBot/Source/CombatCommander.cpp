@@ -1,5 +1,6 @@
 #include "CombatCommander.h"
 #include "UnitUtil.h"
+#include "BWTA.h"
 
 using namespace UAlbertaBot;
 
@@ -8,6 +9,8 @@ const size_t AttackPriority = 1;
 const size_t BaseDefensePriority = 2;
 const size_t ScoutDefensePriority = 3;
 const size_t DropPriority = 4;
+
+const size_t defenseTime = 5 * 60;
 
 CombatCommander::CombatCommander() 
     : _initialized(false)
@@ -24,7 +27,12 @@ void CombatCommander::initializeSquads()
     SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
 	_squadData.addSquad("MainAttack", Squad("MainAttack", mainAttackOrder, AttackPriority));
 
-    BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
+	BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
+	BWAPI::Position defensePosition = (ourBasePosition + BWTA::getNearestChokepoint(ourBasePosition)->getCenter()) / 2;
+
+	//the main defence squad will defend our base until we judge the time is right to attack
+	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, 900, "Defend our base");
+	_squadData.addSquad("MainDefense", Squad("MainDefense", mainDefenseOrder, BaseDefensePriority));
 
     // the scout defense squad will handle chasing the enemy worker scout
     SquadOrder enemyScoutDefense(SquadOrderTypes::Defend, ourBasePosition, 900, "Get the scout");
@@ -65,6 +73,7 @@ void CombatCommander::update(const BWAPI::Unitset & combatUnits)
         updateIdleSquad();
         updateDropSquads();
         updateScoutDefenseSquad();
+		updateMainDefenseSquad();
 		updateDefenseSquads();
 		updateAttackSquads();
 	}
@@ -233,6 +242,34 @@ void CombatCommander::updateScoutDefenseSquad()
     }
 }
 
+void CombatCommander::updateMainDefenseSquad(){
+	Squad & mainDefenseSquad = _squadData.getSquad("MainDefense");
+	if (BWAPI::Broodwar->elapsedTime() > defenseTime){
+		mainDefenseSquad.clear();
+		return;
+	}
+	
+
+	for (auto & unit : _combatUnits)
+	{
+		if (unit->getType() == BWAPI::UnitTypes::Zerg_Scourge && UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hydralisk) < 30)
+		{
+			continue;
+		}
+
+		// get every unit of a lower priority and put it into the defense squad
+		if (!unit->getType().isWorker() && (unit->getType() != BWAPI::UnitTypes::Zerg_Overlord) && _squadData.canAssignUnitToSquad(unit, mainDefenseSquad))
+		{
+			_squadData.assignUnitToSquad(unit, mainDefenseSquad);
+		}
+	}
+
+	BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
+	BWAPI::Position defensePosition=(ourBasePosition + BWTA::getNearestChokepoint(ourBasePosition)->getCenter())/2;
+	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, 900, "Defend our base");
+	mainDefenseSquad.setSquadOrder(mainDefenseOrder);
+}
+
 void CombatCommander::updateDefenseSquads() 
 {
 	if (_combatUnits.empty()) 
@@ -340,6 +377,8 @@ void CombatCommander::updateDefenseSquads()
     std::set<std::string> uselessDefenseSquads;
     for (const auto & kv : _squadData.getSquads())
     {
+		//don't want to remove main defense squad
+		if (kv.first == "MainDefense") continue;
         const Squad & squad = kv.second;
         const SquadOrder & order = squad.getSquadOrder();
 

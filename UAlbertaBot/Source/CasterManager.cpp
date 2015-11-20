@@ -118,6 +118,7 @@ int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Un
 		//slightly generous approximation of units in effected area
 		if (effected->getDistance(p) <= 55){
 			value += effected->getType().gasPrice() + effected->getType().mineralPrice();
+			if (effected->getType() == BWAPI::UnitTypes::Protoss_Archon) value += 2 * (BWAPI::UnitTypes::Protoss_High_Templar.gasPrice() + BWAPI::UnitTypes::Protoss_High_Templar.mineralPrice());
 			//give bonus for hitting cloacked units since other units may not be able to hit them
 			if (effected->getType().isCloakable()) value *= 2;
 		}

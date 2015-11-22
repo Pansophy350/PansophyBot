@@ -54,8 +54,8 @@ void CombatSimulation::setCombatUnits(const BWAPI::Position & center, const int 
             continue;
         }
 
-        
-        if (ui.type == BWAPI::UnitTypes::Terran_Bunker)
+        //treat all cannon type things as 6 marines, since bot currently does not appear to consider turrets
+		if (ui.type == BWAPI::UnitTypes::Terran_Bunker || ui.type == BWAPI::UnitTypes::Zerg_Sunken_Colony || ui.type == BWAPI::UnitTypes::Protoss_Photon_Cannon || ui.type == BWAPI::UnitTypes::Terran_Missile_Turret)
         {
             double hpRatio = static_cast<double>(ui.lastHealth) / ui.type.maxHitPoints();
 
@@ -75,6 +75,7 @@ void CombatSimulation::setCombatUnits(const BWAPI::Position & center, const int 
             
             continue;
         }
+
 
         if (!ui.type.isFlyer() && SparCraft::System::isSupportedUnitType(ui.type) && ui.completed)
 		{

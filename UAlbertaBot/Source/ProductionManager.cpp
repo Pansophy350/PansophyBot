@@ -1,4 +1,5 @@
 #include "ProductionManager.h"
+#include "UnitUtil.h"
 
 using namespace UAlbertaBot;
 
@@ -342,7 +343,7 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
         && !t.getUnitType().isAddon())
     {
         // send the building task to the building manager
-        BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::Broodwar->self()->getStartLocation(), item.isGasSteal);
+		BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::Broodwar->self()->getStartLocation(), item.isGasSteal);
     }
     else if (t.getUnitType().isAddon())
     {

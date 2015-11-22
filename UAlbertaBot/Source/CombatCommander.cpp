@@ -10,7 +10,7 @@ const size_t BaseDefensePriority = 2;
 const size_t ScoutDefensePriority = 3;
 const size_t DropPriority = 4;
 
-const size_t defenseTime = 5 * 60;
+const size_t defenseTime = 10 * 60;
 
 CombatCommander::CombatCommander() 
     : _initialized(false)

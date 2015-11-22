@@ -137,7 +137,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + 2));
 		}
 
-		if ( (numZealots + numDragoons + numDarkTeplar) > 8){
+		if ( (numZealots + numDragoons + numDarkTeplar) > 8 && numHighTemplar < 4){
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + 1));
 		}
 

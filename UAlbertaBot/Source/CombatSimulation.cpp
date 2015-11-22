@@ -68,7 +68,7 @@ void CombatSimulation::setCombatUnits(const BWAPI::Position & center, const int 
 		                    BWAPI::Broodwar->getFrameCount(), 
                             BWAPI::Broodwar->getFrameCount());	
 
-            for (size_t i(0); i < 8; ++i)
+            for (size_t i(0); i < 6; ++i)
             {
                 s.addUnit(marine);
             }

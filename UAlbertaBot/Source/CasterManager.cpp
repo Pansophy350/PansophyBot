@@ -178,7 +178,7 @@ int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Un
 			else if (effected->getType() == BWAPI::UnitTypes::Protoss_Dark_Archon) value += 2 * (BWAPI::UnitTypes::Protoss_Dark_Templar.gasPrice() + BWAPI::UnitTypes::Protoss_Dark_Templar.mineralPrice());
 			else value += effected->getType().gasPrice() + effected->getType().mineralPrice();
 			//give bonus for hitting cloacked units since other units may not be able to hit them
-			if (effected->getType().isCloakable()) value *= 2;
+			if (effected->getType().isCloakable() || effected->getType().isBurrowable() || effected->getType() == BWAPI::UnitTypes::Protoss_Dark_Templar) value *= 1.5;
 		}
 	}
 	for (auto &effected : friendly){

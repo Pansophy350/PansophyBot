@@ -88,13 +88,70 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 	}
 }
 
-bool CasterManager::canCast(BWAPI::Unit casterUnit){
+//We may want our casters to take a retreating shot even while fleeing so we create an alternative regroup function
+void CasterManager::regroup(const BWAPI::Position & regroupPosition) const
+{
+	BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
+	int regroupDistanceFromBase = MapTools::Instance().getGroundDistance(regroupPosition, ourBasePosition);
+
+	const BWAPI::Unitset & casterUnits = getUnits();
+	const BWAPI::Unitset & ourUnits = BWAPI::Broodwar->self()->getUnits();
+
+	//keep a list of friendly units to try to avoid targeting them
+	BWAPI::Unitset friendlyUnits;
+	std::copy_if(ourUnits.begin(), ourUnits.end(), std::inserter(friendlyUnits, friendlyUnits.end()), [](BWAPI::Unit u){return u->isVisible() && !u->getType().isBuilding(); });
+
+	// figure out targets omit buildings since psi-storm does not work on them
+	BWAPI::Unitset targets;
+	BWAPI::Unitset casterUnitTargets;
+	MapGrid::Instance().GetUnits(targets, calcCenter(), 800, false, true);
+	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){return u->isVisible() && !u->getType().isBuilding(); });
+
+	// for each of the units we have
+	for (auto & casterUnit : casterUnits)
+	{
+		// if there are targets and we have enough energy to cast
+		if (!casterUnitTargets.empty() && canCast(casterUnit))
+		{
+			// find the best target location for this templar's psi-storm
+			std::pair<int, BWAPI::Position> valueAndPosition = getBestTarget(casterUnit, casterUnitTargets, friendlyUnits);
+			int value = valueAndPosition.first;
+			BWAPI::Position target = valueAndPosition.second;
+
+			//if this target meets our castThreshold, or we are significantly damaged cast on that target
+			if (target && casterUnit->getDistance(target) < 300 && (value > castThreshold || (value >= 0 && casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5)))){
+				//if not being casted on, cast on target
+				removeEffected(target, casterUnitTargets);
+				castOnLocation(casterUnit, target);
+				return;
+			}
+		}
+		int unitDistanceFromBase = MapTools::Instance().getGroundDistance(casterUnit->getPosition(), ourBasePosition);
+
+		// if the unit is outside the regroup area
+		if (unitDistanceFromBase > regroupDistanceFromBase)
+		{
+			Micro::SmartMove(casterUnit, ourBasePosition);
+		}
+		else if (casterUnit->getDistance(regroupPosition) > 100)
+		{
+			// regroup it
+			Micro::SmartMove(casterUnit, regroupPosition);
+		}
+		else
+		{
+			Micro::SmartAttackMove(casterUnit, casterUnit->getPosition());
+		}
+	}
+}
+
+bool CasterManager::canCast(BWAPI::Unit casterUnit) const{
 	//psi-storm costs 75 energy so we can cast it if we have this
 	return casterUnit->getEnergy() >= BWAPI::TechTypes::Psionic_Storm.energyCost();
 }
 
 //return the bestTarget location we can find for casting psi-storm and the value of doing so
-std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly)
+std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly) const
 {
 	//if we can't do better than 0 value just return arbitrary position and 0 value
 	int maxvalue = 0;
@@ -111,14 +168,15 @@ std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterU
 }
 
 //return a measure of value (sum of gasPrice+minearlPrice of units in range) for casting psi-storm at the given location
-int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly)
+int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly) const
 {
 	int value = 0;
 	for (auto &effected : targets){
 		//slightly generous approximation of units in effected area
 		if (effected->getDistance(p) <= 55){
-			value += effected->getType().gasPrice() + effected->getType().mineralPrice();
 			if (effected->getType() == BWAPI::UnitTypes::Protoss_Archon) value += 2 * (BWAPI::UnitTypes::Protoss_High_Templar.gasPrice() + BWAPI::UnitTypes::Protoss_High_Templar.mineralPrice());
+			else if (effected->getType() == BWAPI::UnitTypes::Protoss_Dark_Archon) value += 2 * (BWAPI::UnitTypes::Protoss_Dark_Templar.gasPrice() + BWAPI::UnitTypes::Protoss_Dark_Templar.mineralPrice());
+			else value += effected->getType().gasPrice() + effected->getType().mineralPrice();
 			//give bonus for hitting cloacked units since other units may not be able to hit them
 			if (effected->getType().isCloakable()) value *= 2;
 		}
@@ -132,7 +190,7 @@ int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Un
 }
 
 //tell the given unit to cast psi-storm on the given location
-void CasterManager::castOnLocation(BWAPI::Unit casterUnit, const BWAPI::Position p)
+void CasterManager::castOnLocation(BWAPI::Unit casterUnit, const BWAPI::Position p) const
 {
 	//ToDo: generalize for non high-templar units
 	BWAPI::TechType tech = BWAPI::TechTypes::Psionic_Storm;

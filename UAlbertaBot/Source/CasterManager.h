@@ -17,10 +17,11 @@ namespace UAlbertaBot
 		BWAPI::Unit closestrangedUnit(BWAPI::Unit target, std::set<BWAPI::Unit> & rangedUnitsToAssign);
 		std::pair<BWAPI::Unit, BWAPI::Unit> findClosestUnitPair(const BWAPI::Unitset & attackers, const BWAPI::Unitset & targets);
 		void checkTargets(const BWAPI::Unitset & targets);
-		int evaluateCastPosition(const BWAPI::Position p, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly);
-		void castOnLocation(BWAPI::Unit casterUnit, const BWAPI::Position p);
-		std::pair<int, BWAPI::Position> getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly);
-		bool canCast(BWAPI::Unit casterUnit);
+		void regroup(const BWAPI::Position & regroupPosition) const override;
+		int evaluateCastPosition(const BWAPI::Position p, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly) const;
+		void castOnLocation(BWAPI::Unit casterUnit, const BWAPI::Position p) const;
+		std::pair<int, BWAPI::Position> getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly) const;
+		bool canCast(BWAPI::Unit casterUnit) const;
 	private:
 		//only cast if we find a target location who's value exceeds this
 		int castThreshold = 200;

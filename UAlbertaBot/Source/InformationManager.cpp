@@ -561,7 +561,7 @@ bool InformationManager::enemyHasCloakedUnits()
 	{
 		const UnitInfo & ui(kv.second);
 
-        if (ui.type.isCloakable())
+        if (ui.type.isCloakable() || ui.type.isBurrowable() || ui.type == BWAPI::UnitTypes::Protoss_Dark_Templar)
         {
             return true;
         }

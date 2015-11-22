@@ -46,7 +46,7 @@ public:
 
 	void				setUnits(const BWAPI::Unitset & u);
 	void				execute(const SquadOrder & order);
-	void				regroup(const BWAPI::Position & regroupPosition) const;
+	virtual void	    regroup(const BWAPI::Position & regroupPosition) const;
 
 };
 }

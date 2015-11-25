@@ -56,6 +56,18 @@ void CombatSimulation::setCombatUnits(const BWAPI::Position & center, const int 
 
 		if (ui.type == BWAPI::UnitTypes::Terran_Bunker)
         {
+			//add bunker occupants to simulation
+			for (auto &containedUnit : ui.unit->getLoadedUnits()){
+				if (SparCraft::System::isSupportedUnitType(ui.type)){
+					try{
+						s.addUnit(getSparCraftUnit(ui));
+					}
+					catch (int e)
+					{
+						BWAPI::Broodwar->printf("Problem Adding Enemy Unit with ID: %d %d", ui.unitID, e);
+					}
+				}
+			}
             double hpRatio = static_cast<double>(ui.lastHealth) / ui.type.maxHitPoints();
 
             SparCraft::Unit marine( BWAPI::UnitTypes::Terran_Marine,
@@ -66,8 +78,8 @@ void CombatSimulation::setCombatUnits(const BWAPI::Position & center, const int 
                             0,
 		                    BWAPI::Broodwar->getFrameCount(), 
                             BWAPI::Broodwar->getFrameCount());	
-
-            for (size_t i(0); i < 6; ++i)
+			//give the bunker a bonus of 2 marines in addition to its true occupants
+            for (size_t i(0); i < 2; ++i)
             {
                 s.addUnit(marine);
             }

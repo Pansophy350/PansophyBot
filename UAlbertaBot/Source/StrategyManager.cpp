@@ -126,6 +126,8 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
     int numReaver           = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Protoss_Reaver);
     int numDarkTeplar       = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Protoss_Dark_Templar);
 	int numHighTemplar      = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Protoss_High_Templar);
+	int numCitadel          = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Citadel_of_Adun);
+	int numArchives         = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Templar_Archives);
 
 	if (Config::Strategy::StrategyName == "Protoss_Pansophy")
 	{
@@ -145,6 +147,25 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		if (numNexusAll >= 2)
 		{
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
+		}
+
+		//Upgrades 
+		if ((numCyber > 0) && (numDragoons >0))
+		{
+			//more range dragoons
+			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Singularity_Charge, 1));
+		}
+
+		if ((numCitadel > 0) && (numZealots >0))
+		{
+			//move faster zealots
+			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Leg_Enhancements, 1));
+		}
+
+		if ((numArchives > 0) && (numHighTemplar > 0))
+		{
+			//more energy High Templar 
+			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Khaydarin_Amulet, 1));
 		}
 	}
     else if (Config::Strategy::StrategyName == "Protoss_ZealotRush")

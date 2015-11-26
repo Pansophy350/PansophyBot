@@ -163,6 +163,12 @@ std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterU
 			besttarget = target;
 		}
 	}
+	if (besttarget == NULL && (casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5))) 
+	{
+		BWAPI::Unitset temp;
+		temp.insert(targets.getClosestUnit());
+		return std::pair<int, BWAPI::Position>(evaluateCastPosition(targets.getClosestUnit()->getPosition(),temp,friendly), targets.getClosestUnit()->getPosition());
+	}
 	if (besttarget == NULL) return std::pair<int, BWAPI::Position>(0,BWAPI::Position(0,0));
 	return std::pair<int, BWAPI::Position>(maxvalue, besttarget->getPosition());
 }
@@ -178,7 +184,7 @@ int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Un
 			else if (effected->getType() == BWAPI::UnitTypes::Protoss_Dark_Archon) value += 2 * (BWAPI::UnitTypes::Protoss_Dark_Templar.gasPrice() + BWAPI::UnitTypes::Protoss_Dark_Templar.mineralPrice());
 			else value += effected->getType().gasPrice() + effected->getType().mineralPrice();
 			//give bonus for hitting cloacked units since other units may not be able to hit them
-			if (effected->isCloaked() || effected->isBurrowed()) value *= 1.5;
+			if (effected->isCloaked() || effected->isBurrowed()) value = (int)ceil(value * 1.5);
 		}
 	}
 	for (auto &effected : friendly){

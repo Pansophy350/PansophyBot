@@ -166,12 +166,6 @@ std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterU
 			besttarget = target;
 		}
 	}
-	if (besttarget == NULL && (casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5))) 
-	{
-		BWAPI::Unitset temp;
-		temp.insert(targets.getClosestUnit());
-		return std::pair<int, BWAPI::Position>(evaluateCastPosition(targets.getClosestUnit()->getPosition(),temp,friendly), targets.getClosestUnit()->getPosition());
-	}
 	if (besttarget == NULL) return std::pair<int, BWAPI::Position>(0,BWAPI::Position(0,0));
 	return std::pair<int, BWAPI::Position>(maxvalue, besttarget->getPosition());
 }

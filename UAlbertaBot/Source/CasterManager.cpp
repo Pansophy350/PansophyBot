@@ -39,6 +39,9 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 
 	for (auto & casterUnit : casterUnits)
 	{
+		//become selfless in the face of death
+		if(value >= 0 && casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5) friendly.erase(casterUnit);
+		
 		BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 2, BWAPI::Colors::Green, true);
 
 		// if the order is to attack or defend

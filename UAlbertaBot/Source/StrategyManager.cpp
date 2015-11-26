@@ -127,7 +127,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
     int numDarkTeplar       = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Protoss_Dark_Templar);
 	int numHighTemplar      = UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Protoss_High_Templar);
 
-	if (Config::Strategy::StrategyName == "Protoss_Pansophy")
+	if (Config::Strategy::StrategyName == "Protoss_FastTemplar" || "Protoss_SlowTemplar")
 	{
 		if (numZealots < 10) {
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 6));

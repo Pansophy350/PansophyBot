@@ -31,7 +31,7 @@ void CombatCommander::initializeSquads()
 	BWAPI::Position defensePosition = (ourBasePosition + BWTA::getNearestChokepoint(ourBasePosition)->getCenter()) / 2;
 
 	//the main defence squad will defend our base until we judge the time is right to attack
-	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, 900, "Defend our base");
+	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, ourBasePosition, 900, "Defend our base");
 	_squadData.addSquad("MainDefense", Squad("MainDefense", mainDefenseOrder, BaseDefensePriority));
 
     // the scout defense squad will handle chasing the enemy worker scout
@@ -265,8 +265,7 @@ void CombatCommander::updateMainDefenseSquad(){
 	}
 
 	BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
-	BWAPI::Position defensePosition=(ourBasePosition + BWTA::getNearestChokepoint(ourBasePosition)->getCenter())/2;
-	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, 900, "Defend our base");
+	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, ourBasePosition, 900, "Defend our base");
 	mainDefenseSquad.setSquadOrder(mainDefenseOrder);
 }
 

@@ -141,7 +141,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		}
 
 		if ( (numZealots + numDragoons + numDarkTeplar) > 8 && numHighTemplar < 4){
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + 1));
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + 2));
 		}
 
 		// once we have a 2nd nexus start making dragoons
@@ -154,13 +154,13 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		int minute = frame / (24 * 60);
 
 		//a 1/3 of the time make cannons 
-		if (minute % 3 == 1)
+		if (minute % 3 == 0)
 		{
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 1));
 		} 
 
 		//a 1/4 of the time make 2 more pylons 
-		if ( (minute % 4 == 1) && (numPylons < 24) )
+		if ( (minute % 4 == 0) && (numPylons < 24) )
 		{
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Pylon, numPylons + 2));
 		}

@@ -40,7 +40,7 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 	for (auto & casterUnit : casterUnits)
 	{
 		//become selfless in the face of death
-		if(casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5)) friendly.erase(casterUnit);
+		if(casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5)) friendlyUnits.erase(casterUnit);
 		
 		BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 2, BWAPI::Colors::Green, true);
 
@@ -89,7 +89,11 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 			}
 		}
 	}
+	//merge
+	//for (auto & casterUnit : casterUnits)
 }
+
+
 
 //We may want our casters to take a retreating shot even while fleeing so we create an alternative regroup function
 void CasterManager::regroup(const BWAPI::Position & regroupPosition) const

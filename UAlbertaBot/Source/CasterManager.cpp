@@ -89,8 +89,22 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 			}
 		}
 	}
+	bool x;
 	//merge
-	//for (auto & casterUnit : casterUnits)
+	for (auto & casterUnit : casterUnits)
+	{
+		if (casterUnit->getEnergy() < 50) {
+			
+			if (casterUnit->getHitPoints() < BWAPI::UnitTypes::Protoss_High_Templar.maxHitPoints())
+			
+			{
+
+				BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 6, BWAPI::Colors::Black, true);
+				casterUnits.useTech(BWAPI::TechTypes::Archon_Warp, casterUnit);
+			}	
+		}
+	}
+
 }
 
 

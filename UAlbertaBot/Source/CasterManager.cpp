@@ -29,6 +29,10 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 	const BWAPI::Unitset & casterUnits = getUnits();
 	const BWAPI::Unitset & ourUnits = BWAPI::Broodwar->self()->getUnits();
 
+	BWAPI::Bulletset bullets = BWAPI::Broodwar->getBullets();
+	BWAPI::Bulletset psistorms;
+	std::copy_if(bullets.begin(), bullets.end(), std::inserter(psistorms, psistorms.end()), [](BWAPI::Bullet b){return b->getType() == BWAPI::BulletTypes::Psionic_Storm; });
+
 	//keep a list of friendly units to try to avoid targeting them
 	BWAPI::Unitset friendlyUnits;
 	std::copy_if(ourUnits.begin(), ourUnits.end(), std::inserter(friendlyUnits, friendlyUnits.end()), [](BWAPI::Unit u){return u->isVisible() && !u->getType().isBuilding();});
@@ -36,6 +40,10 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 	// figure out targets omit buildings since psi-storm does not work on them
 	BWAPI::Unitset casterUnitTargets;
 	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){return u->isVisible() && !u->getType().isBuilding();});
+	//removed targets effected by psi-storm
+	for (auto & psistorm : psistorms){
+		removeEffected(psistorm->getPosition(), casterUnitTargets);
+	}
 
 	for (auto & casterUnit : casterUnits)
 	{

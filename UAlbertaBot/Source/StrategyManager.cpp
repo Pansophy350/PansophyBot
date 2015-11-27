@@ -132,7 +132,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 
 	static int techFlag = 0;
 
-	if (Config::Strategy::StrategyName == "Protoss_Pansophy")
+	if (Config::Strategy::StrategyName == "Protoss_FastTemplar" || "Protoss_SlowTemplar")
 	{
 		if (numZealots < 12) {
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 8));

@@ -10,6 +10,7 @@ const size_t AttackPriority = 1;
 const size_t BaseDefensePriority = 2;
 const size_t ScoutDefensePriority = 3;
 const size_t DropPriority = 4;
+bool attack_flag = false;
 
 CombatCommander::CombatCommander() 
     : _initialized(false)
@@ -30,7 +31,7 @@ void CombatCommander::initializeSquads()
 	BWAPI::Position defensePosition = (ourBasePosition + BWTA::getNearestChokepoint(ourBasePosition)->getCenter()) / 2;
 
 	//the main defence squad will defend our base until we judge the time is right to attack
-	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, 900, "Defend our base");
+	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, ourBasePosition, 800, "Defend our base");
 	_squadData.addSquad("MainDefense", Squad("MainDefense", mainDefenseOrder, BaseDefensePriority));
 
     // the scout defense squad will handle chasing the enemy worker scout
@@ -243,12 +244,17 @@ void CombatCommander::updateScoutDefenseSquad()
 
 void CombatCommander::updateMainDefenseSquad(){
 	Squad & mainDefenseSquad = _squadData.getSquad("MainDefense");
-	int frame = BWAPI::Broodwar->getFrameCount();
-	int minute = frame / (24 * 60);
-	if (minute > 5)
-	{
+	if (attack_flag){
 		mainDefenseSquad.clear();
 		return;
+	}
+	for (auto Unit : mainDefenseSquad.getUnits()){
+		//set attack flag to true the first time we have a charged up high templar
+		if (Unit->getType() == BWAPI::UnitTypes::Protoss_High_Templar && Unit->getEnergy() > BWAPI::TechTypes::Psionic_Storm.energyCost()){
+			attack_flag = true;
+			mainDefenseSquad.clear();
+			return;
+		}
 	}
 	for (auto & unit : _combatUnits)
 	{
@@ -265,14 +271,14 @@ void CombatCommander::updateMainDefenseSquad(){
 	}
 
 	BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
-	BWAPI::Position defensePosition=(ourBasePosition + BWTA::getNearestChokepoint(ourBasePosition)->getCenter())/2;
-	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, 900, "Defend our base");
+	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, ourBasePosition, 800, "Defend our base");
 	mainDefenseSquad.setSquadOrder(mainDefenseOrder);
 }
 
 void CombatCommander::updateDefenseSquads() 
 {
-	if (_combatUnits.empty()) 
+	//don't defend our sole base until the main attack starts, this is the main defense squads job
+	if (_combatUnits.empty() || !attack_flag && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Nexus) == 1) 
     { 
         return; 
     }

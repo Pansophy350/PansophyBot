@@ -10,7 +10,7 @@ const size_t BaseDefensePriority = 2;
 const size_t ScoutDefensePriority = 3;
 const size_t DropPriority = 4;
 
-const size_t defenseTime = 10 * 60;
+
 
 CombatCommander::CombatCommander() 
     : _initialized(false)
@@ -244,11 +244,14 @@ void CombatCommander::updateScoutDefenseSquad()
 
 void CombatCommander::updateMainDefenseSquad(){
 	Squad & mainDefenseSquad = _squadData.getSquad("MainDefense");
-	if (BWAPI::Broodwar->elapsedTime() > defenseTime){
+
+	if (mainDefenseSquad.getUnits().size() > 10)
+	{
 		mainDefenseSquad.clear();
 		return;
 	}
 	
+	int zealots = 0;
 
 	for (auto & unit : _combatUnits)
 	{
@@ -258,9 +261,32 @@ void CombatCommander::updateMainDefenseSquad(){
 		}
 
 		// get every unit of a lower priority and put it into the defense squad
-		if (!unit->getType().isWorker() && (unit->getType() != BWAPI::UnitTypes::Zerg_Overlord) && _squadData.canAssignUnitToSquad(unit, mainDefenseSquad))
+		if (!unit->getType().isWorker() && (unit->getType() != BWAPI::UnitTypes::Zerg_Overlord) && _squadData.canAssignUnitToSquad(unit, mainDefenseSquad) )
 		{
-			_squadData.assignUnitToSquad(unit, mainDefenseSquad);
+			if (unit->getType() == BWAPI::UnitTypes::Protoss_Zealot)
+			{
+				zealots += 1;
+				if (zealots % 10 == 0) 
+				{
+					_squadData.assignUnitToSquad(unit, mainDefenseSquad);
+				}
+			}
+			if (unit->getType() == BWAPI::UnitTypes::Protoss_High_Templar)
+			{
+				int htflag = 0;
+				for (auto iunit : mainDefenseSquad.getUnits())
+				{
+					if (iunit->getType() == BWAPI::UnitTypes::Protoss_High_Templar)
+					{
+						htflag = 1;
+					}
+				}
+				if (!htflag)
+				{
+					_squadData.assignUnitToSquad(unit, mainDefenseSquad);
+				}
+			}
+			//_squadData.assignUnitToSquad(unit, mainDefenseSquad);
 		}
 	}
 

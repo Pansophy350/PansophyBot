@@ -47,6 +47,9 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 
 	for (auto & casterUnit : casterUnits)
 	{
+		//become selfless in the face of death
+		if(casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5)) friendlyUnits.erase(casterUnit);
+		
 		BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 2, BWAPI::Colors::Green, true);
 
 		// if the order is to attack or defend
@@ -94,7 +97,11 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 			}
 		}
 	}
+	//merge
+	//for (auto & casterUnit : casterUnits)
 }
+
+
 
 //We may want our casters to take a retreating shot even while fleeing so we create an alternative regroup function
 void CasterManager::regroup(const BWAPI::Position & regroupPosition) const
@@ -186,7 +193,7 @@ int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Un
 			else if (effected->getType() == BWAPI::UnitTypes::Protoss_Dark_Archon) value += 2 * (BWAPI::UnitTypes::Protoss_Dark_Templar.gasPrice() + BWAPI::UnitTypes::Protoss_Dark_Templar.mineralPrice());
 			else value += effected->getType().gasPrice() + effected->getType().mineralPrice();
 			//give bonus for hitting cloacked units since other units may not be able to hit them
-			if (effected->isCloaked() || effected->isBurrowed()) value *= 1.5;
+			if (effected->isCloaked() || effected->isBurrowed()) value = (int)ceil(value * 1.5);
 		}
 	}
 	for (auto &effected : friendly){

@@ -130,6 +130,8 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 	int numArchives         = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Templar_Archives);
 	int numForge            = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Forge);
 
+	static int techFlag = 0;
+
 	if (Config::Strategy::StrategyName == "Protoss_Pansophy")
 	{
 		if (numZealots < 12) {
@@ -177,50 +179,62 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 			//more range dragoons
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Singularity_Charge, 1));
 		}
-
-		if ((numForge > 0) && (minute > 8))
+		int flagset = 0;
+		if ((numForge > 0) && (minute > 8) && (techFlag == 0))
 		{
 			//more attack dragoons and zealots 
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 1));
+			flagset = 1;
 		}
 		
-		if ((numArchives > 0) && (numHighTemplar > 2) && (minute > 13))
+		if ((numArchives > 0) && (numHighTemplar > 2) && (minute > 13) && (techFlag == 1) )
 		{
 			//more energy High Templar 
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Khaydarin_Amulet, 1));
+			flagset = 1;
 		}
 
-		if ((numForge > 0) && (numArchives > 0) && (minute > 15))
+		if ((numForge > 0) && (numArchives > 0) && (minute > 15) && (techFlag == 2))
 		{
 			//more attack dragoons and zealots 
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 2));
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Plasma_Shields, 1));
+			flagset = 1;
 		}
 
-		if ((numForge > 0) && (numArchives > 0) && (minute > 18))
+		if ((numForge > 0) && (numArchives > 0) && (minute > 18) && (techFlag == 3))
 		{
 			//more attack dragoons and zealots 
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 3));
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Plasma_Shields, 2));
+			flagset = 1;
 		}
 
-		if ((numForge > 0) && (minute > 18))
+		if ((numForge > 0) && (minute > 18) && (techFlag == 4))
 		{
 			//more armor for our ground units
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Armor, 1));
+			flagset = 1;
 		}
 
-		if ((numForge > 0) && (numArchives > 0) && (minute > 25))
+		if ((numForge > 0) && (numArchives > 0) && (minute > 25) && (techFlag == 5))
 		{
 			//more armor for our ground units
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Armor, 2));
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Plasma_Shields, 3));
+			flagset = 1;
 		}
 
-		if ((numForge > 0) && (numArchives > 0) && (minute > 30))
+		if ((numForge > 0) && (numArchives > 0) && (minute > 30) && (techFlag == 6))
 		{
 			//more armor for our ground units
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Armor, 3));
+			flagset = 1;
+		}
+
+		if (flagset == 1)
+		{
+			techFlag += 1;
 		}
 
 	}

@@ -5,14 +5,12 @@
 using namespace UAlbertaBot;
 
 const size_t IdlePriority = 0;
+
 const size_t AttackPriority = 1;
 const size_t BaseDefensePriority = 2;
 const size_t ScoutDefensePriority = 3;
 const size_t DropPriority = 4;
-
 bool attack_flag = false;
-
-
 
 CombatCommander::CombatCommander() 
     : _initialized(false)
@@ -258,7 +256,6 @@ void CombatCommander::updateMainDefenseSquad(){
 			return;
 		}
 	}
-
 	for (auto & unit : _combatUnits)
 	{
 		if (unit->getType() == BWAPI::UnitTypes::Zerg_Scourge && UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hydralisk) < 30)

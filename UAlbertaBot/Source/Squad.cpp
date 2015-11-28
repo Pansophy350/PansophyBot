@@ -165,10 +165,6 @@ void Squad::addUnitsToMicroManagers()
 			{
 				casterUnits.insert(unit);
 			}
-			else if (unit->getType() == BWAPI::UnitTypes::Protoss_Zealot)
-			{
-				tankUnits.insert(unit);
-			}
             else if (unit->getType() == BWAPI::UnitTypes::Terran_Siege_Tank_Siege_Mode || unit->getType() == BWAPI::UnitTypes::Terran_Siege_Tank_Tank_Mode)
             {
                 tankUnits.insert(unit);

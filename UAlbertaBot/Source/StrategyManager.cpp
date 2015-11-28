@@ -115,7 +115,7 @@ const MetaPairVector StrategyManager::getBuildOrderGoal()
 bool haveIdleResearchFacility(BWAPI::UnitType facility){
 	const BWAPI::Unitset & ourUnits = BWAPI::Broodwar->self()->getUnits();
 	BWAPI::Unitset facilities;
-	std::copy_if(ourUnits.begin(), ourUnits.end(), std::inserter(facilities, facilities.end()), [](BWAPI::Unit u){return u->getType() == BWAPI::UnitTypes::Protoss_Forge; });
+	std::copy_if(ourUnits.begin(), ourUnits.end(), std::inserter(facilities, facilities.end()), [&facility](BWAPI::Unit u){return u->getType() == facility; });
 	for (auto & facility : facilities){
 		if (!facility->isResearching()) return true;
 	}
@@ -275,7 +275,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		}
 
 		//a 1/5 of the time make cannons 
-		if (minute % 5 == 0)
+		if (minute % 5 == 0 && numForge > 0)
 		{
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 1));
 		}

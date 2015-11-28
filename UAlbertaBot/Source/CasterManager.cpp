@@ -198,7 +198,7 @@ float unitValue(const BWAPI::Unit u){
 	else value = (float) (u->getType().gasPrice() + u->getType().mineralPrice());
 	if (u->isCloaked() || u->isBurrowed()) value *= 1.5;
 	//value should now be value of unit hit points
-	value = value * 100 / (float)u->getType().maxHitPoints();
+	//value = value * 100 / (float)u->getType().maxHitPoints();
 	return value;
 }
 

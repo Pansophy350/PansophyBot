@@ -59,7 +59,10 @@ class StrategyManager
 	const	MetaPairVector		    getZergBuildOrderGoal() const;
 
 public:
-    
+	        int                     forgeLock;
+			int                     legflag;
+			int                     singflag;
+			int                     amuletflag;
 	static	StrategyManager &	    Instance();
 
 			void				    onEnd(const bool isWinner);

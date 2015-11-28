@@ -10,7 +10,10 @@ StrategyManager::StrategyManager()
 	, _enemyRace(BWAPI::Broodwar->enemy()->getRace())
     , _emptyBuildOrder(BWAPI::Broodwar->self()->getRace())
 {
-	
+	forgeLock  = 0;
+	singflag   = 1;
+	legflag    = 1;
+	amuletflag = 1;
 }
 
 // get an instance of this
@@ -109,6 +112,16 @@ const MetaPairVector StrategyManager::getBuildOrderGoal()
     return MetaPairVector();
 }
 
+bool haveIdleResearchFacility(BWAPI::UnitType facility){
+	const BWAPI::Unitset & ourUnits = BWAPI::Broodwar->self()->getUnits();
+	BWAPI::Unitset facilities;
+	std::copy_if(ourUnits.begin(), ourUnits.end(), std::inserter(facilities, facilities.end()), [&facility](BWAPI::Unit u){return u->getType() == facility; });
+	for (auto & facility : facilities){
+		if (!facility->isResearching()) return true;
+	}
+	return false;
+}
+
 const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 {
 	// the goal to return
@@ -129,105 +142,145 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 	int numCitadel          = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Citadel_of_Adun);
 	int numArchives         = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Templar_Archives);
 	int numForge            = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Forge);
-
-	static int techFlag = 0;
+	int numObs              = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Cybernetics_Core);
+	int numRobotics         = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Robotics_Facility);
+	//upgrades
+	int legLevel            = BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Leg_Enhancements);
+	int numSingularity      = BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Singularity_Charge);
+	int plasemaLevel        = BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Plasma_Shields);
+	int gwlevel             = BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Protoss_Ground_Weapons);
 
 	if (Config::Strategy::StrategyName == "Protoss_Pansophy")
 	{
-		if (numZealots < 12) {
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 8));
-		}
-		else {
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 7));
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + 1));
-		}
+		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 8));
+		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
 
 		int frame = BWAPI::Broodwar->getFrameCount();
 		int minute = frame / (24 * 60);
 
 		int wantHT = 0;
-		//a 1/3 of the time make cannons 
+		//a 1/3 of the time try to make 2 more high templar 
 		if (minute % 2 == 0)
 		{
 			wantHT += 2;
 		}
 
-		if ( (numZealots + numDragoons + numDarkTeplar) > 6 && numHighTemplar < 5){
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + wantHT + 2));
+		if ((numZealots + numDragoons + numDarkTeplar) > 6 && numHighTemplar < 5){
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + wantHT + 1));
 		}
 
 		// once we have a 2nd nexus start making dragoons
 		if (numNexusAll >= 2)
 		{
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
+			//goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + 2));
 		}
 
-		//a 1/3 of the time make cannons 
-		if (minute % 3 == 0)
-		{
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 1));
-		} 
-
-		//a 1/4 of the time make 2 more pylons 
-		if ( (minute % 4 == 0) && (numPylons < 24) )
+		//a 1/5 of the time make 2 more pylons 
+		if ((minute % 5 == 0) && (numPylons < 24))
 		{
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Pylon, numPylons + 2));
 		}
+		else if (minute > 30 && (numPylons < 24))
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Pylon, numPylons + 3));
+		}
 
 		//Upgrades 
-		if ((numCitadel > 0) && (numZealots >0))
+		if (StrategyManager::Instance().legflag)
 		{
-			//move faster zealots
-			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Leg_Enhancements, 1));
+			if ((legLevel == 0) && (numCitadel > 0) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Citadel_of_Adun))
+			{
+				//move faster zealots
+				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Leg_Enhancements, 1));
+				StrategyManager::Instance().legflag = 0;
+			}
 		}
 
-		if (numCyber > 0)
+		if (StrategyManager::Instance().singflag)
 		{
-			//more range dragoons
-			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Singularity_Charge, 1));
-		}
-		int flagset = 0;
-		if ((numForge > 0) && (minute > 10) && (techFlag == 0))
-		{
-			//more attack dragoons and zealots 
-			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 1));
-			flagset = 1;
-		}
-		
-		if ((numArchives > 0) && (numHighTemplar > 2) && (minute > 10) && (techFlag == 1) )
-		{
-			//more energy High Templar 
-			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Khaydarin_Amulet, 1));
-			flagset = 1;
+			if ((numSingularity == 0) && (numCyber > 0) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Cybernetics_Core))
+			{
+				//more range dragoons
+				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Singularity_Charge, 1));
+				StrategyManager::Instance().singflag = 0;
+			}
 		}
 
-		if ((numForge > 0) && (numArchives > 0) && (minute > 15) && (techFlag == 2))
+		if ( (BWAPI::Broodwar->self()->minerals() > 400) && (BWAPI::Broodwar->self()->gas() > 400) )
 		{
-			//more attack dragoons and zealots 
-			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 2));
-			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Plasma_Shields, 1));
-			flagset = 1;
+			if ((gwlevel == 0) && (!StrategyManager::Instance().forgeLock) && (numForge > 0) && (minute > 8) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
+			{
+				//more attack dragoons and zealots 
+				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 1));
+				StrategyManager::Instance().forgeLock = 1;
+			}
+
+			if ((StrategyManager::Instance().amuletflag) && (numArchives > 0) && (numHighTemplar > 2) && (minute > 10) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
+			{
+				//more energy High Templar 
+				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Khaydarin_Amulet, 1));
+				StrategyManager::Instance().amuletflag = 0;
+			}
+
+			if ((gwlevel == 1) && (!StrategyManager::Instance().forgeLock) && (numForge > 0) && (numArchives > 0) && (minute > 15) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
+			{
+				//more attack dragoons and zealots 
+				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 2));
+				StrategyManager::Instance().forgeLock = 1;
+			}
+
+			if ((gwlevel == 2) && (!StrategyManager::Instance().forgeLock) && (numForge > 0) && (numArchives > 0) && (minute > 25) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
+			{
+				//more attack dragoons and zealots 
+				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 3));
+				StrategyManager::Instance().forgeLock = 1;
+			}
+
+			if ((plasemaLevel == 0) && (!StrategyManager::Instance().forgeLock) && (numForge > 0) && (numArchives > 0) && (minute > 40) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
+			{
+				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Plasma_Shields, 1));
+				StrategyManager::Instance().forgeLock = 1;
+			}
+
+			if ((plasemaLevel == 1) && (!StrategyManager::Instance().forgeLock) && (numForge > 0) && (numArchives > 0) && (minute > 45) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
+			{
+				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Plasma_Shields, 2));
+				StrategyManager::Instance().forgeLock = 1;
+			}
+
+			if ((plasemaLevel == 2) && (!StrategyManager::Instance().forgeLock) && (numForge > 0) && (numArchives > 0) && (minute > 45) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
+			{
+				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Plasma_Shields, 3));
+				StrategyManager::Instance().forgeLock = 1;
+			}
 		}
 
-		if ((numForge > 0) && (numArchives > 0) && (minute > 20) && (techFlag == 3))
+		//avoid hang ups
+		if (numForge < 1 && (minute > 15))
 		{
-			//more attack dragoons and zealots 
-			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 3));
-			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Plasma_Shields, 2));
-			flagset = 1;
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Forge, numForge + 1));
+		}
+		if (numCyber < 1 && (minute > 20))
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Cybernetics_Core, numCyber + 1));
+		}
+		if ( (numRobotics < 1) && (minute > 10))
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Robotics_Facility, numRobotics + 2));
+		}
+		if ( (numObs < 1) && (minute > 20) && (numRobotics > 0))
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Observatory, numObs + 1));
 		}
 
-		if ((numForge > 0) && (numArchives > 0) && (minute > 25) && (techFlag == 4))
+		//a 1/5 of the time make cannons 
+		if (minute % 5 == 0 && numForge > 0)
 		{
-			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Plasma_Shields, 3));
-			flagset = 1;
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 1));
 		}
-
-		if (flagset == 1)
-		{
-			techFlag += 1;
-		}
-
+		//rest lock 
+		StrategyManager::Instance().forgeLock = 0;
 	}
     else if (Config::Strategy::StrategyName == "Protoss_CannonRush")
     {
@@ -305,7 +358,6 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 	if (shouldExpandNow())
 	{
 		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Nexus, numNexusAll + 1));
-		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 2));
 	}
 
 	return goal;

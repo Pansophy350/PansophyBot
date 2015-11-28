@@ -245,12 +245,13 @@ void CombatCommander::updateScoutDefenseSquad()
 void CombatCommander::updateMainDefenseSquad(){
 	Squad & mainDefenseSquad = _squadData.getSquad("MainDefense");
 	if (attack_flag){
-		mainDefenseSquad.clear();
 		return;
 	}
+
 	for (auto Unit : mainDefenseSquad.getUnits()){
 		//set attack flag to true the first time we have a charged up high templar
-		if (Unit->getType() == BWAPI::UnitTypes::Protoss_High_Templar && Unit->getEnergy() > BWAPI::TechTypes::Psionic_Storm.energyCost()){
+		if ( Unit->getType() == BWAPI::UnitTypes::Protoss_High_Templar && Unit->getEnergy() > BWAPI::TechTypes::Psionic_Storm.energyCost() )
+		{
 			attack_flag = true;
 			mainDefenseSquad.clear();
 			return;

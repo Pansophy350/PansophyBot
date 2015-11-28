@@ -42,7 +42,7 @@ void MeleeManager::assignTargetsOld(const BWAPI::Unitset & targets)
 		for (auto &p : psistorms){
 			int distance = meleeUnit->getDistance(p->getPosition());
 			if (distance < 55){
-				BWAPI::Position outside = meleeUnit->getPosition() + (meleeUnit->getPosition() - p->getPosition())*(80 / (float) distance);
+				BWAPI::Position outside = meleeUnit->getPosition() + (meleeUnit->getPosition() - p->getPosition())*(int) ceil(80 / (float) distance);
 				meleeUnit->move(outside);
 				continue;
 			}

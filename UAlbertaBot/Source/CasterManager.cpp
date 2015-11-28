@@ -39,7 +39,9 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 
 	// figure out targets omit buildings since psi-storm does not work on them
 	BWAPI::Unitset casterUnitTargets;
+	BWAPI::Unitset casterUnitThreats;
 	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitTargets, casterUnitTargets.end()), [](BWAPI::Unit u){return u->isVisible() && !u->getType().isBuilding();});
+	std::copy_if(targets.begin(), targets.end(), std::inserter(casterUnitThreats, casterUnitThreats.end()), [](BWAPI::Unit u){return u->isVisible() && u->getType().isBuilding() && u->canAttack(); });
 	//removed targets effected by psi-storm
 	for (auto & psistorm : psistorms){
 		removeEffected(psistorm->getPosition(), casterUnitTargets);
@@ -61,7 +63,7 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 	for (auto & casterUnit : casterUnits)
 	{
 		//become selfless in the face of death
-		if(casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5)) friendlyUnits.erase(casterUnit);
+		if(casterUnit->getHitPoints() <= (casterUnit->getType().maxHitPoints() / 1.5)) friendlyUnits.erase(casterUnit);
 		
 		BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 2, BWAPI::Colors::Green, true);
 
@@ -101,6 +103,13 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 			// if there are no targets
 			else
 			{
+				//if there are no targets but we are near a threat flee
+				for (auto threat : casterUnitThreats){
+					if (casterUnit->getDistance(threat) < 500){
+						BWAPI::Position fleeTo(BWAPI::Broodwar->self()->getStartLocation());
+						return;
+					}
+				}
 				// if we're not near the order position
 				if (casterUnit->getDistance(order.getPosition()) > 100)
 				{
@@ -145,7 +154,7 @@ void CasterManager::regroup(const BWAPI::Position & regroupPosition) const
 			BWAPI::Position target = valueAndPosition.second;
 
 			//if this target meets our castThreshold, or we are significantly damaged cast on that target
-			if (target && casterUnit->getDistance(target) < 300 && (value > castThreshold || (value >= 0 && casterUnit->getHitPoints() <= (casterUnit->getInitialHitPoints() / 1.5)))){
+			if (target && casterUnit->getDistance(target) < 300 && (value > castThreshold || (value >= 0 && casterUnit->getHitPoints() <= (casterUnit->getType().maxHitPoints()) / 1.5))){
 				//if not being casted on, cast on target
 				removeEffected(target, casterUnitTargets);
 				castOnLocation(casterUnit, target);
@@ -180,37 +189,40 @@ bool CasterManager::canCast(BWAPI::Unit casterUnit) const{
 std::pair<int, BWAPI::Position> CasterManager::getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly) const
 {
 	//if we can't do better than 0 value just return arbitrary position and 0 value
-	int maxvalue = 0;
+	float maxvalue = 0;
 	BWAPI::Unit besttarget = NULL;
 	for (auto target : targets){
-		int value = evaluateCastPosition(target->getPosition(), targets, friendly);
+		float value = evaluateCastPosition(target->getPosition(), targets, friendly);
 		if (value > maxvalue){
 			maxvalue = value;
 			besttarget = target;
 		}
 	}
 	if (besttarget == NULL) return std::pair<int, BWAPI::Position>(0,BWAPI::Position(0,0));
-	return std::pair<int, BWAPI::Position>(maxvalue, besttarget->getPosition());
+	return std::pair<int, BWAPI::Position>((int) maxvalue, besttarget->getPosition());
+}
+
+float unitValue(const BWAPI::Unit u){
+	float value;
+	if (u->getType() == BWAPI::UnitTypes::Protoss_Archon) value = (float) 2 * (BWAPI::UnitTypes::Protoss_High_Templar.gasPrice() + BWAPI::UnitTypes::Protoss_High_Templar.mineralPrice());
+	else if (u->getType() == BWAPI::UnitTypes::Protoss_Dark_Archon) value = (float) 2 * (BWAPI::UnitTypes::Protoss_Dark_Templar.gasPrice() + BWAPI::UnitTypes::Protoss_Dark_Templar.mineralPrice());
+	else value = (float) (u->getType().gasPrice() + u->getType().mineralPrice());
+	if (u->isCloaked() || u->isBurrowed()) value *= 1.5;
+	//value should now be value of unit hit points
+	//value = value * 100 / (float)u->getType().maxHitPoints();
+	return value;
 }
 
 //return a measure of value (sum of gasPrice+minearlPrice of units in range) for casting psi-storm at the given location
-int CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly) const
+float CasterManager::evaluateCastPosition(const BWAPI::Position p, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly) const
 {
-	int value = 0;
+	float value = 0;
 	for (auto &effected : targets){
 		//slightly generous approximation of units in effected area
-		if (effected->getDistance(p) <= 55){
-			if (effected->getType() == BWAPI::UnitTypes::Protoss_Archon) value += 2 * (BWAPI::UnitTypes::Protoss_High_Templar.gasPrice() + BWAPI::UnitTypes::Protoss_High_Templar.mineralPrice());
-			else if (effected->getType() == BWAPI::UnitTypes::Protoss_Dark_Archon) value += 2 * (BWAPI::UnitTypes::Protoss_Dark_Templar.gasPrice() + BWAPI::UnitTypes::Protoss_Dark_Templar.mineralPrice());
-			else value += effected->getType().gasPrice() + effected->getType().mineralPrice();
-			//give bonus for hitting cloacked units since other units may not be able to hit them
-			if (effected->isCloaked() || effected->isBurrowed()) value = (int)ceil(value * 1.5);
-		}
+		if (effected->getDistance(p) <= 55) value += unitValue(effected);
 	}
 	for (auto &effected : friendly){
-		if (effected->getDistance(p) <= 55){
-			value -= effected->getType().gasPrice() + effected->getType().mineralPrice();
-		}
+		if (effected->getDistance(p) <= 55) value -= unitValue(effected);
 	}
 	return value;
 }

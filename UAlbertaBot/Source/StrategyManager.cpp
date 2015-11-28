@@ -244,6 +244,12 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		{
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Cybernetics_Core, numObs + 1));
 		}
+
+		//a 1/5 of the time make cannons 
+		if (minute % 5 == 0)
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 1));
+		}
 		//rest lock 
 		StrategyManager::Instance().forgeLock = 0;
 	}

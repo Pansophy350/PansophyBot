@@ -18,12 +18,12 @@ namespace UAlbertaBot
 		std::pair<BWAPI::Unit, BWAPI::Unit> findClosestUnitPair(const BWAPI::Unitset & attackers, const BWAPI::Unitset & targets);
 		void checkTargets(const BWAPI::Unitset & targets);
 		void regroup(const BWAPI::Position & regroupPosition) const override;
-		int evaluateCastPosition(const BWAPI::Position p, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly) const;
+		float evaluateCastPosition(const BWAPI::Position p, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly) const;
 		void castOnLocation(BWAPI::Unit casterUnit, const BWAPI::Position p) const;
 		std::pair<int, BWAPI::Position> getBestTarget(BWAPI::Unit casterUnit, const BWAPI::Unitset & targets, const BWAPI::Unitset & friendly) const;
 		bool canCast(BWAPI::Unit casterUnit) const;
 	private:
 		//only cast if we find a target location who's value exceeds this
-		int castThreshold = 200;
+		float castThreshold = 200;
 	};
 }

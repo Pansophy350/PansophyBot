@@ -160,13 +160,13 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 
 		int wantHT = 0;
 		//a 1/3 of the time try to make 2 more high templar 
-		if (minute % 2 == 0)
+		if (minute % 3 == 0)
 		{
 			wantHT += 2;
 		}
 
-		if ((numZealots + numDragoons + numDarkTeplar) > 6 && numHighTemplar < 5){
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + wantHT + 1));
+		if ( numHighTemplar < 5 ){
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + wantHT + 2));
 		}
 
 		// once we have a 2nd nexus start making dragoons
@@ -278,6 +278,13 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		if (minute % 5 == 0 && numForge > 0)
 		{
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 1));
+		}
+		if (numForge > 0)
+		{
+			if ( numForge > 0 && numCannon < 4 )
+			{
+				goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 2));
+			}
 		}
 		//rest lock 
 		StrategyManager::Instance().forgeLock = 0;

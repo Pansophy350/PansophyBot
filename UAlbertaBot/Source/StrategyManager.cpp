@@ -109,6 +109,16 @@ const MetaPairVector StrategyManager::getBuildOrderGoal()
     return MetaPairVector();
 }
 
+bool haveIdleResearchFacility(BWAPI::UnitType facility){
+	const BWAPI::Unitset & ourUnits = BWAPI::Broodwar->self()->getUnits();
+	BWAPI::Unitset facilities;
+	std::copy_if(ourUnits.begin(), ourUnits.end(), std::inserter(facilities, facilities.end()), [](BWAPI::Unit u){return u->getType() == BWAPI::UnitTypes::Protoss_Forge; });
+	for (auto & facility : facilities){
+		if (!facility->isResearching()) return true;
+	}
+	return false;
+}
+
 const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 {
 	// the goal to return
@@ -175,33 +185,33 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		}
 
 		//Upgrades 
-		if ((numCitadel > 0) && (numZealots >0))
+		if ((numCitadel > 0) && (numZealots >0) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Citadel_of_Adun))
 		{
 			//move faster zealots
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Leg_Enhancements, 1));
 		}
 
-		if (numCyber > 0)
+		if (numCyber > 0 && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Cybernetics_Core))
 		{
 			//more range dragoons
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Singularity_Charge, 1));
 		}
 		int flagset = 0;
-		if ((numForge > 0) && (minute > 10) && (techFlag == 0))
+		if ((numForge > 0) && (minute > 10) && (techFlag == 0) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
 		{
 			//more attack dragoons and zealots 
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 1));
 			flagset = 1;
 		}
 		
-		if ((numArchives > 0) && (numHighTemplar > 2) && (minute > 10) && (techFlag == 1) )
+		if ((numArchives > 0) && (numHighTemplar > 2) && (minute > 10) && (techFlag == 1) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
 		{
 			//more energy High Templar 
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Khaydarin_Amulet, 1));
 			flagset = 1;
 		}
 
-		if ((numForge > 0) && (numArchives > 0) && (minute > 15) && (techFlag == 2))
+		if ((numForge > 0) && (numArchives > 0) && (minute > 15) && (techFlag == 2) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
 		{
 			//more attack dragoons and zealots 
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 2));
@@ -209,7 +219,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 			flagset = 1;
 		}
 
-		if ((numForge > 0) && (numArchives > 0) && (minute > 20) && (techFlag == 3))
+		if ((numForge > 0) && (numArchives > 0) && (minute > 20) && (techFlag == 3) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
 		{
 			//more attack dragoons and zealots 
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Ground_Weapons, 3));
@@ -217,7 +227,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 			flagset = 1;
 		}
 
-		if ((numForge > 0) && (numArchives > 0) && (minute > 25) && (techFlag == 4))
+		if ((numForge > 0) && (numArchives > 0) && (minute > 25) && (techFlag == 4) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
 		{
 			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Protoss_Plasma_Shields, 3));
 			flagset = 1;

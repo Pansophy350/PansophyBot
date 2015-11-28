@@ -90,7 +90,7 @@ void ProductionManager::update()
 
 			if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Zealot) < 3 )
 			{
-				for (auto i = 0; i < 5; i++)
+				for (auto i = 0; i < 3; i++)
 				{
 					_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Zealot), true);
 				}

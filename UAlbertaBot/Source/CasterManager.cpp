@@ -47,6 +47,19 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 		removeEffected(psistorm->getPosition(), casterUnitTargets);
 	}
 
+	//merge
+	for (auto & casterUnit : casterUnits)
+	{
+		// high templar begin with 50 psi, so if we check energy at anything higher than 49 it will return
+		// true as soon as they are made
+
+		if ((casterUnit->getEnergy() < 50) && (casterUnit->getHitPoints() <= 40))
+		{
+			BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 6, BWAPI::Colors::Black, true);
+			casterUnits.useTech(BWAPI::TechTypes::Archon_Warp, casterUnit);
+		}
+	}
+
 	for (auto & casterUnit : casterUnits)
 	{
 		//become selfless in the face of death
@@ -106,8 +119,6 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 			}
 		}
 	}
-	//merge
-	//for (auto & casterUnit : casterUnits)
 }
 
 

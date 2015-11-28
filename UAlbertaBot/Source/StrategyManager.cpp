@@ -10,7 +10,10 @@ StrategyManager::StrategyManager()
 	, _enemyRace(BWAPI::Broodwar->enemy()->getRace())
     , _emptyBuildOrder(BWAPI::Broodwar->self()->getRace())
 {
-	forgeLock = 0;
+	forgeLock  = 0;
+	singflag   = 1;
+	legflag    = 1;
+	amuletflag = 1;
 }
 
 // get an instance of this
@@ -149,20 +152,8 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 
 	if (Config::Strategy::StrategyName == "Protoss_Pansophy")
 	{
-		int wantz = 0;
-		int wantdt = 0;
-		if (BWAPI::Broodwar->self()->minerals() + BWAPI::Broodwar->self()->gas()  > 3000)
-		{
-			wantz = 2;
-			wantdt = 2;
-		}
-		if (numZealots < 10) {
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + wantz + 8));
-		}
-		else {
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + wantz + 6));
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + wantdt + 2));
-		}
+		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 8));
+		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
 
 		int frame = BWAPI::Broodwar->getFrameCount();
 		int minute = frame / (24 * 60);
@@ -181,7 +172,8 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		// once we have a 2nd nexus start making dragoons
 		if (numNexusAll >= 2)
 		{
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
+			//goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + 2));
 		}
 
 		//a 1/5 of the time make 2 more pylons 
@@ -195,20 +187,27 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		}
 
 		//Upgrades 
-		//BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UpgradeTypes::Leg_Enhancements);
-		if ((legLevel == 0) && (numCitadel > 0) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Citadel_of_Adun))
+		if (StrategyManager::Instance().legflag)
 		{
-			//move faster zealots
-			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Leg_Enhancements, 1));
+			if ((legLevel == 0) && (numCitadel > 0) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Citadel_of_Adun))
+			{
+				//move faster zealots
+				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Leg_Enhancements, 1));
+				StrategyManager::Instance().legflag = 0;
+			}
 		}
 
-		if ((numSingularity == 0) && (numCyber > 0) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Cybernetics_Core))
+		if (StrategyManager::Instance().singflag)
 		{
-			//more range dragoons
-			goal.push_back(MetaPair(BWAPI::UpgradeTypes::Singularity_Charge, 1));
+			if ((numSingularity == 0) && (numCyber > 0) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Cybernetics_Core))
+			{
+				//more range dragoons
+				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Singularity_Charge, 1));
+				StrategyManager::Instance().singflag = 0;
+			}
 		}
 
-		if ( (BWAPI::Broodwar->self()->minerals() > 300) && (BWAPI::Broodwar->self()->gas() > 250) )
+		if ( (BWAPI::Broodwar->self()->minerals() > 400) && (BWAPI::Broodwar->self()->gas() > 400) )
 		{
 			if ((gwlevel == 0) && (!StrategyManager::Instance().forgeLock) && (numForge > 0) && (minute > 8) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
 			{
@@ -217,10 +216,11 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 				StrategyManager::Instance().forgeLock = 1;
 			}
 
-			if ((numArchives > 0) && (numHighTemplar > 2) && (minute > 10) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
+			if ((StrategyManager::Instance().amuletflag) && (numArchives > 0) && (numHighTemplar > 2) && (minute > 10) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))
 			{
 				//more energy High Templar 
 				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Khaydarin_Amulet, 1));
+				StrategyManager::Instance().amuletflag = 0;
 			}
 
 			if ((gwlevel == 1) && (!StrategyManager::Instance().forgeLock) && (numForge > 0) && (numArchives > 0) && (minute > 15) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Forge))

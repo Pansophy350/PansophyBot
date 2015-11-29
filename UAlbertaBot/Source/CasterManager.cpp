@@ -47,19 +47,6 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 		removeEffected(psistorm->getPosition(), casterUnitTargets);
 	}
 
-	//merge
-	for (auto & casterUnit : casterUnits)
-	{
-		// high templar begin with 50 psi, so if we check energy at anything higher than 49 it will return
-		// true as soon as they are made
-
-		if ((casterUnit->getEnergy() < 50) && (casterUnit->getHitPoints() <= 40))
-		{
-			BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 6, BWAPI::Colors::Black, true);
-			casterUnits.useTech(BWAPI::TechTypes::Archon_Warp, casterUnit);
-		}
-	}
-
 	for (auto & casterUnit : casterUnits)
 	{
 		//become selfless in the face of death
@@ -119,8 +106,34 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 			}
 		}
 	}
-}
 
+	// initalize a target
+	auto target = *casterUnits.begin();
+
+	BWAPI::Unitset toMerge;
+
+	//merge
+	for (auto & casterUnit : casterUnits)
+	{
+		// high templar begin with 50 psi, so if we check energy at anything higher than 49 it will return
+		// true as soon as they are made
+		BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
+		BWAPI::Position HTloc = casterUnit->getPosition();
+		int distanceFromBase = MapTools::Instance().getGroundDistance(HTloc, ourBasePosition);
+
+		bool destroying = (distanceFromBase > 100) && casterUnit->isHoldingPosition();
+		
+		if (( (casterUnit->getEnergy() < 50) && (casterUnit->getHitPoints() <= 30) ) || destroying ) 
+		{
+			toMerge.insert(casterUnit);
+			BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 6, BWAPI::Colors::Black, true);
+			target = casterUnit;
+			//casterUnits.useTech(BWAPI::TechTypes::Archon_Warp, casterUnit);
+		}
+	}
+
+	toMerge.useTech(BWAPI::TechTypes::Archon_Warp, target);// , *toMerge.begin());
+}
 
 
 //We may want our casters to take a retreating shot even while fleeing so we create an alternative regroup function

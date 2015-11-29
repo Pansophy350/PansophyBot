@@ -75,26 +75,13 @@ void ProductionManager::update()
 	{
         if (BWAPI::Broodwar->self()->getRace() == BWAPI::Races::Protoss)
         {
-			if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Photon_Cannon) < 4)
+			if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Photon_Cannon) < 5)
 			{
 				for (auto i = 0; i < 4; i++)
 				{
 					_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Photon_Cannon), true);
 				}
 		    }
-
-			if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Gateway) == 0)
-			{
-				_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Gateway), true);
-			}
-
-			if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Zealot) < 3 )
-			{
-				for (auto i = 0; i < 3; i++)
-				{
-					_queue.queueAsHighestPriority(MetaType(BWAPI::UnitTypes::Protoss_Zealot), true);
-				}
-			}
 
 		    if (BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Forge) == 0)
 		    {

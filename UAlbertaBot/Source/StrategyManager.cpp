@@ -152,8 +152,24 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 
 	if (Config::Strategy::StrategyName == "Protoss_Pansophy")
 	{
-		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 8));
-		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
+		if (BWAPI::Broodwar->enemy()->getRace() == BWAPI::Races::Terran)
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 6));
+			if (numArchives > 0)
+			{ 
+				goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + 3));
+			}
+			else
+			{
+				goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Templar_Archives, numArchives + 1));
+				goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + 1));
+			}
+		}
+		else
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 8));
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
+		}
 
 		int frame = BWAPI::Broodwar->getFrameCount();
 		int minute = frame / (24 * 60);
@@ -285,6 +301,10 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 			{
 				goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 2));
 			}
+		}
+		else if (minute < 15 && minute > 5)
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Forge, numForge + 2));
 		}
 		//rest lock 
 		StrategyManager::Instance().forgeLock = 0;

@@ -131,10 +131,6 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 			//casterUnits.useTech(BWAPI::TechTypes::Archon_Warp, casterUnit);
 		}
 	}
-	if (toMerge.size() < 2 && *toMerge.begin() != *casterUnits.begin() && (*toMerge.begin())->getHitPoints() < 26 )
-	{
-		toMerge.insert(*casterUnits.begin());
-	}
 	toMerge.useTech(BWAPI::TechTypes::Archon_Warp, target);// , *toMerge.begin());
 }
 

@@ -225,7 +225,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		}
 
 		//a 1/2 of the time make 2 more pylons 
-		if ((minute % 2 == 0) && (numPylons < 24))
+		if ( numPylons < 24 )
 		{
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Pylon, numPylons + 2));
 		}

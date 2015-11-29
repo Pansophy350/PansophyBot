@@ -63,6 +63,7 @@ public:
 			int                     legflag;
 			int                     singflag;
 			int                     amuletflag;
+			int                     stormflag;
 	static	StrategyManager &	    Instance();
 
 			void				    onEnd(const bool isWinner);

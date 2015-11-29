@@ -224,8 +224,8 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
 		}
 
-		//a 1/5 of the time make 2 more pylons 
-		if ((minute % 5 == 0) && (numPylons < 24))
+		//a 1/2 of the time make 2 more pylons 
+		if ((minute % 2 == 0) && (numPylons < 24))
 		{
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Pylon, numPylons + 2));
 		}

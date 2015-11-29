@@ -247,7 +247,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 
 		if (StrategyManager::Instance().singflag)
 		{
-			if ((numSingularity == 0) && (numCyber > 0))
+			if ((numSingularity == 0) && (numCyber > 0) && (numDragoons > 0))
 			{
 				//more range dragoons
 				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Singularity_Charge, 1));

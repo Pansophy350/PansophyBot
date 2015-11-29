@@ -98,7 +98,7 @@
         
         "Strategies" :
         {
-            "Protoss_Pansophy"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot",  "Probe", "Zealot", "Zealot", "Probe", "Pylon", "Zealot", "Assimilator", "Probe", "Pylon", "Probe", "Cybernetics_Core", "Zealot", "Probe", "Gateway", "Zealot", "Zealot", "Zealot", "Zealot", "Citadel_of_Adun", "Pylon", "Probe", "Zealot", "Zealot", "Zealot", "Templar_Archives", "Zealot", "Zealot", "Zealot", "Dark_Templar", "Dark_Templar", "Psionic_Storm"]},
+            "Protoss_Pansophy"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot",  "Probe", "Zealot", "Zealot", "Probe", "Pylon", "Zealot", "Assimilator", "Probe", "Forge","Pylon", "Probe", "Cybernetics_Core", "Zealot", "Photon_Cannon", "Probe", "Gateway", "Zealot", "Zealot", "Zealot", "Zealot", "Citadel_of_Adun", "Pylon", "Probe", "Zealot", "Zealot", "Zealot", "Templar_Archives", "Zealot", "Zealot", "Zealot", "Dark_Templar", "Dark_Templar", "Psionic_Storm"]},
 
             "Protoss_Pansophy_temp"       : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Zealot",  "Probe", "Assimilator", "Probe", "Cybernetics_Core","Zealot", "Probe", "Citadel_of_Adun", "Zealot", "Probe", "Templar_Archives", "Psionic_Storm", "Gateway", "Zealot", "High_Templar", "High_Templar", "Zealot", "Zealot", "Zealot", "Pylon", "High_Templar", "Zealot", "High_Templar", "Zealot", "Zealot", "Probe", "Pylon", "Probe" ]},
             

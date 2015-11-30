@@ -8,7 +8,7 @@
         
     "BWAPI" : 
     {
-        "SetLocalSpeed"             : 5,
+        "SetLocalSpeed"             : 0,
         "SetFrameSkip"              : 0,
         "UserInput"                 : true,
         "CompleteMapInformation"    : false
@@ -98,7 +98,7 @@
         
         "Strategies" :
         {
-            "Protoss_Pansophy"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Zealot", "Zealot", "Zealot", "Zealot", "Probe", "Pylon", "Forge", "Zealot", "Photon_Cannon", "Zealot", "Photon_Cannon", "Zealot", "Assimilator", "Probe", "Zealot", "Zealot","Pylon", "Probe", "Cybernetics_Core", "Zealot", "Probe", "Gateway", "Zealot", "Zealot", "Zealot", "Zealot", "Citadel_of_Adun", "Pylon", "Probe", "Zealot", "Zealot", "Zealot", "Templar_Archives", "Zealot", "Zealot", "Zealot", "Dark_Templar", "Dark_Templar", "Psionic_Storm"]},
+            "Protoss_Pansophy"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Zealot", "Zealot", "Zealot", "Zealot", "Probe", "Pylon", "Forge", "Zealot", "Photon_Cannon", "Zealot", "Photon_Cannon", "Zealot", "Assimilator", "Probe", "Zealot", "Zealot","Pylon", "Probe", "Cybernetics_Core", "Zealot", "Probe", "Gateway", "Zealot", "Zealot", "Zealot", "Zealot", "Citadel_of_Adun", "Pylon", "Probe", "Zealot", "Zealot", "Zealot", "Templar_Archives", "Zealot", "Zealot", "Zealot", "Psionic_Storm", "Dark_Templar", "Dark_Templar", "High_Templar"]},
 
             "Protoss_Pansophy_temp"       : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Zealot",  "Probe", "Assimilator", "Probe", "Cybernetics_Core","Zealot", "Probe", "Citadel_of_Adun", "Zealot", "Probe", "Templar_Archives", "Psionic_Storm", "Gateway", "Zealot", "High_Templar", "High_Templar", "Zealot", "Zealot", "Zealot", "Pylon", "High_Templar", "Zealot", "High_Templar", "Zealot", "Zealot", "Probe", "Pylon", "Probe" ]},
             

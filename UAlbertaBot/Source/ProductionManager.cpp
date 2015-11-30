@@ -346,11 +346,12 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
     {
         // send the building task to the building manager
 		if ((t.getUnitType() == BWAPI::UnitTypes::Protoss_Pylon && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Pylon) == 0) ||
-			t.getUnitType() == BWAPI::UnitTypes::Protoss_Photon_Cannon) {
+			t.getUnitType() == BWAPI::UnitTypes::Protoss_Photon_Cannon ||
+			t.getUnitType() == BWAPI::UnitTypes::Protoss_Gateway && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Gateway) <2) {
 			//build initial defense near choke
 			double min_distance = 1000000;
 			BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
-			BWAPI::Position defense_choke = ourBasePosition;
+			BWAPI::Position defense_choke;
 			BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 			if (enemyBaseLocation){
 				BWAPI::Position enemyBasePosition = enemyBaseLocation->getPosition();
@@ -362,7 +363,20 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
 					}
 				}
 			}
-			BWAPI::Position defensePosition = defense_choke + ((ourBasePosition*200 - defense_choke*200)/ (int) defense_choke.getDistance(ourBasePosition));
+			else{
+				defense_choke = BWTA::getNearestChokepoint(ourBasePosition)->getCenter();
+			}
+			BWAPI::Position defensePosition = defense_choke + ((ourBasePosition * 200 - defense_choke * 200) / (int)defense_choke.getDistance(ourBasePosition));
+			//find a buildable position before hand, otherwise things freeze up sometimes
+			int iter = 0;
+			while (!BWAPI::Broodwar->isBuildable(BWAPI::TilePosition(defensePosition), false) && iter <20){
+				Building b(BWAPI::UnitTypes::Unknown, BWAPI::TilePosition(defensePosition));
+				defensePosition = BWAPI::Position(BuildingPlacer::Instance().getBuildLocationNear(b, 0, false));
+				iter++;
+			}
+			if (!BWAPI::Broodwar->isBuildable(BWAPI::TilePosition(defensePosition), false)){
+				defensePosition = ourBasePosition;
+			}
 			BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::TilePosition(defensePosition), item.isGasSteal);
 		}
 		else{

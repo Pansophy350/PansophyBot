@@ -18,6 +18,22 @@ CombatCommander::CombatCommander()
 
 }
 
+//returns the position of the nearest friendly cannnon, or the original position if there are no cannons
+BWAPI::Position getNearestCannonPosition(BWAPI::Position p){
+	const BWAPI::Unitset & ourUnits = BWAPI::Broodwar->self()->getUnits();
+	BWAPI::Unitset cannons;
+	std::copy_if(ourUnits.begin(), ourUnits.end(), std::inserter(cannons, cannons.begin()), [](BWAPI::Unit u){return u->getType() == BWAPI::UnitTypes::Protoss_Photon_Cannon; });
+	int min_dist = 10000;
+	BWAPI::Position closest = p;
+	for (auto & cannon : cannons){
+		if (cannon->getDistance(p) < min_dist){
+			closest = cannon->getPosition();
+			min_dist = cannon->getDistance(p);
+		}
+	}
+	return closest;
+}
+
 void CombatCommander::initializeSquads()
 {
     SquadOrder idleOrder(SquadOrderTypes::Idle, BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation()), 100, "Chill Out");
@@ -43,8 +59,11 @@ void CombatCommander::initializeSquads()
 			}
 		}
 	}
-	BWAPI::Position defensePosition = defense_choke + ((ourBasePosition*200 - defense_choke*200)/ (int) defense_choke.getDistance(ourBasePosition));
-	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, (int) defensePosition.getDistance(defense_choke), "Defend our base");
+	BWAPI::Position defensePosition = defense_choke + ((ourBasePosition * 200 - defense_choke * 200) / (int)defense_choke.getDistance(ourBasePosition));	
+	//get cannon nearest to defense position and defend that instead
+	defensePosition = getNearestCannonPosition(defensePosition);
+
+	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, 200, "Defend our base");
 	_squadData.addSquad("MainDefense", Squad("MainDefense", mainDefenseOrder, BaseDefensePriority));
 
     // the scout defense squad will handle chasing the enemy worker scout
@@ -290,11 +309,13 @@ void CombatCommander::updateMainDefenseSquad(){
 	BWAPI::Unitset attackers;
 	BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
 	MapGrid::Instance().GetUnits(attackers, ourBasePosition, 400, false, true);
+
+	//find the chokepoint in our region with the shortest ground distance to the enemy base
 	double min_distance = 1000000;
 	BWAPI::Position defense_choke = ourBasePosition;
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 	BWAPI::Position defensePosition;
-	double radius = 0;
+	int radius;
 	if (enemyBaseLocation && attackers.empty()){
 		BWAPI::Position enemyBasePosition = enemyBaseLocation->getPosition();
 		for (auto choke : BWTA::getRegion(ourBasePosition)->getChokepoints()){
@@ -304,14 +325,17 @@ void CombatCommander::updateMainDefenseSquad(){
 				defense_choke = choke->getCenter();
 			}
 		}
-		defensePosition = defense_choke + (ourBasePosition*200 - defense_choke*200)/ (int) defense_choke.getDistance(ourBasePosition);
-		radius = defensePosition.getDistance(defense_choke);
+		//place defense position 200 pixels from choke piont towards our base
+		defensePosition = defense_choke + (ourBasePosition * 200 - defense_choke * 200) / (int)defense_choke.getDistance(ourBasePosition);
+		//get cannon nearest to defense position and defend that instead
+		defensePosition = getNearestCannonPosition(defensePosition);
+		radius = 200;
 	}
 	else{
 		defensePosition = ourBasePosition;
 		radius = 800;
 	}
-	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, (int) radius, "Defend our base");
+	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, radius, "Defend our base");
 	mainDefenseSquad.setSquadOrder(mainDefenseOrder);
 }
 

@@ -345,25 +345,25 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
         && !t.getUnitType().isAddon())
     {
         // send the building task to the building manager
-		if (t.getUnitType() == BWAPI::UnitTypes::Protoss_Pylon         && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Pylon) == 0 ||
-			t.getTechType() == BWAPI::UnitTypes::Protoss_Photon_Cannon && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Photon_Cannon) < 2) {
+		if ((t.getUnitType() == BWAPI::UnitTypes::Protoss_Pylon && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Pylon) == 0) ||
+			t.getUnitType() == BWAPI::UnitTypes::Protoss_Photon_Cannon) {
 			//build initial defense near choke
-			int min_distance = 1000000;
+			double min_distance = 1000000;
 			BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
 			BWAPI::Position defense_choke = ourBasePosition;
 			BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 			if (enemyBaseLocation){
 				BWAPI::Position enemyBasePosition = enemyBaseLocation->getPosition();
 				for (auto choke : BWTA::getRegion(ourBasePosition)->getChokepoints()){
-					int distance = choke->getCenter().getDistance(enemyBasePosition);
+					double distance = BWTA::getGroundDistance(BWAPI::TilePosition(choke->getCenter()), BWAPI::TilePosition(enemyBasePosition));
 					if (distance < min_distance){
 						min_distance = distance;
 						defense_choke = choke->getCenter();
 					}
 				}
 			}
-			BWAPI::TilePosition defensePosition=BWAPI::TilePosition((defense_choke*5+ourBasePosition)/6);
-			BuildingManager::Instance().addBuildingTask(t.getUnitType(), defensePosition, item.isGasSteal);
+			BWAPI::Position defensePosition = defense_choke + ((ourBasePosition*200 - defense_choke*200)/ (int) defense_choke.getDistance(ourBasePosition));
+			BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::TilePosition(defensePosition), item.isGasSteal);
 		}
 		else{
 			BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::Broodwar->self()->getStartLocation(), item.isGasSteal);

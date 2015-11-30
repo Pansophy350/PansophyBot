@@ -345,7 +345,29 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
         && !t.getUnitType().isAddon())
     {
         // send the building task to the building manager
-		BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::Broodwar->self()->getStartLocation(), item.isGasSteal);
+		if ((t.getUnitType() == BWAPI::UnitTypes::Protoss_Pylon && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Pylon) == 0) ||
+			t.getUnitType() == BWAPI::UnitTypes::Protoss_Photon_Cannon) {
+			//build initial defense near choke
+			double min_distance = 1000000;
+			BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
+			BWAPI::Position defense_choke = ourBasePosition;
+			BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
+			if (enemyBaseLocation){
+				BWAPI::Position enemyBasePosition = enemyBaseLocation->getPosition();
+				for (auto choke : BWTA::getRegion(ourBasePosition)->getChokepoints()){
+					double distance = BWTA::getGroundDistance(BWAPI::TilePosition(choke->getCenter()), BWAPI::TilePosition(enemyBasePosition));
+					if (distance < min_distance){
+						min_distance = distance;
+						defense_choke = choke->getCenter();
+					}
+				}
+			}
+			BWAPI::Position defensePosition = defense_choke + ((ourBasePosition*200 - defense_choke*200)/ (int) defense_choke.getDistance(ourBasePosition));
+			BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::TilePosition(defensePosition), item.isGasSteal);
+		}
+		else{
+			BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::Broodwar->self()->getStartLocation(), item.isGasSteal);
+		}
     }
     else if (t.getUnitType().isAddon())
     {

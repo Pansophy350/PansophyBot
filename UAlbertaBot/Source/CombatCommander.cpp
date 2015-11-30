@@ -43,8 +43,8 @@ void CombatCommander::initializeSquads()
 			}
 		}
 	}
-	BWAPI::Position defensePosition = (ourBasePosition + defense_choke * 3) / 4;
-	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, defense_choke.getDistance(ourBasePosition) / 4, "Defend our base");
+	BWAPI::Position defensePosition = (ourBasePosition + defense_choke) / 2;
+	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, defense_choke.getDistance(ourBasePosition) / 2, "Defend our base");
 	_squadData.addSquad("MainDefense", Squad("MainDefense", mainDefenseOrder, BaseDefensePriority));
 
     // the scout defense squad will handle chasing the enemy worker scout
@@ -289,7 +289,7 @@ void CombatCommander::updateMainDefenseSquad(){
 	//if there are enemies in our base defend whole base
 	BWAPI::Unitset attackers;
 	BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
-	MapGrid::Instance().GetUnits(attackers, ourBasePosition, 800, false, true);
+	MapGrid::Instance().GetUnits(attackers, ourBasePosition, 400, false, true);
 	int min_distance = 1000000;
 	BWAPI::Position defense_choke = ourBasePosition;
 	BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
@@ -304,8 +304,8 @@ void CombatCommander::updateMainDefenseSquad(){
 				defense_choke = choke->getCenter();
 			}
 		}
-		defensePosition = (ourBasePosition + defense_choke * 3) / 4;
-		radius = defense_choke.getDistance(ourBasePosition) / 4;
+		defensePosition = (ourBasePosition + defense_choke) / 2;
+		radius = defense_choke.getDistance(ourBasePosition) / 2;
 	}
 	else{
 		defensePosition = ourBasePosition;

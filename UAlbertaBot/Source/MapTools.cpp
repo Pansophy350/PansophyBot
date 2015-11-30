@@ -199,7 +199,9 @@ void MapTools::search(DistanceMap & dmap,const int sR,const int sC)
 const std::vector<BWAPI::TilePosition> & MapTools::getClosestTilesTo(BWAPI::Position pos)
 {
     // make sure the distance map is calculated with pos as a destination
-    int a = getGroundDistance(BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation()),pos);
+    //int a = getGroundDistance(BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation()),pos);
+	_allMaps.insert(std::pair<BWAPI::Position, DistanceMap>(pos, DistanceMap()));
+	computeDistance(_allMaps[pos], pos);
 
     return _allMaps[pos].getSortedTiles();
 }

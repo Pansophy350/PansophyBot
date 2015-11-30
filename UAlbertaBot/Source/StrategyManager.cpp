@@ -68,13 +68,13 @@ const bool StrategyManager::shouldExpandNow() const
 	}
 
     // if we have a ridiculous stockpile of minerals, expand
-    if (BWAPI::Broodwar->self()->minerals() > 3000)
+    if (BWAPI::Broodwar->self()->minerals() > 4000)
     {
         return true;
     }
 
     // we will make expansion N after array[N] minutes have passed
-    std::vector<int> expansionTimes = {5, 10, 20, 30, 40 , 50};
+    std::vector<int> expansionTimes = {10, 15, 20, 30, 40 , 50};
 
     for (size_t i(0); i < expansionTimes.size(); ++i)
     {
@@ -142,7 +142,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 	int numCitadel          = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Citadel_of_Adun);
 	int numArchives         = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Templar_Archives);
 	int numForge            = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Forge);
-	int numObs              = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Cybernetics_Core);
+	int numObs              = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Observatory);
 	int numRobotics         = BWAPI::Broodwar->self()->completedUnitCount(BWAPI::UnitTypes::Protoss_Robotics_Facility);
 	//upgrades
 	int legLevel            = BWAPI::Broodwar->self()->getUpgradeLevel(BWAPI::UpgradeTypes::Leg_Enhancements);
@@ -152,9 +152,6 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 
 	if (Config::Strategy::StrategyName == "Protoss_Pansophy")
 	{
-		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 8));
-		goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
-
 		int frame = BWAPI::Broodwar->getFrameCount();
 		int minute = frame / (24 * 60);
 
@@ -165,19 +162,70 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 			wantHT += 2;
 		}
 
-		if ( numHighTemplar < 5 ){
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + wantHT + 2));
+		if (BWAPI::Broodwar->enemy()->getRace() == BWAPI::Races::Terran)
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 6));
+			if (numArchives > 0)
+			{ 
+				goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + 3));
+				if (numHighTemplar < 5)
+				{
+					goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + wantHT + 2));
+				}
+			}
+			else
+			{
+				if (numCyber > 0 && numCitadel > 0)
+				{
+					goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Templar_Archives, numArchives + 1));
+				}
+				else if ( numCyber == 0)
+				{
+					goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Cybernetics_Core, numCyber + 1));
+				}
+				else if (numCitadel == 0)
+				{
+					goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Citadel_of_Adun, numCitadel + 1));
+				}
+			}
+		}
+		else
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Zealot, numZealots + 7));
+
+			if (numArchives > 0)
+			{
+				goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + 1));
+				if (numHighTemplar < 5)
+				{
+					goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_High_Templar, numHighTemplar + wantHT + 2));
+				}
+			}
+			else
+			{
+				if (numCyber > 0 && numCitadel > 0)
+				{
+					goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Templar_Archives, numArchives + 1));
+				}
+				else if (numCyber == 0)
+				{
+					goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Cybernetics_Core, numCyber + 1));
+				}
+				else if (numCitadel == 0)
+				{
+					goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Citadel_of_Adun, numCitadel + 1));
+				}
+			}
 		}
 
 		// once we have a 2nd nexus start making dragoons
 		if (numNexusAll >= 2)
 		{
-			//goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dark_Templar, numDarkTeplar + 2));
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
 		}
 
-		//a 1/5 of the time make 2 more pylons 
-		if ((minute % 5 == 0) && (numPylons < 24))
+		//a 1/2 of the time make 2 more pylons 
+		if ( numPylons < 24 )
 		{
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Pylon, numPylons + 2));
 		}
@@ -189,7 +237,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		//Upgrades 
 		if (StrategyManager::Instance().legflag)
 		{
-			if ((legLevel == 0) && (numCitadel > 0) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Citadel_of_Adun))
+			if ((legLevel == 0) && (numCitadel > 0))
 			{
 				//move faster zealots
 				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Leg_Enhancements, 1));
@@ -199,7 +247,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 
 		if (StrategyManager::Instance().singflag)
 		{
-			if ((numSingularity == 0) && (numCyber > 0) && haveIdleResearchFacility(BWAPI::UnitTypes::Protoss_Cybernetics_Core))
+			if ((numSingularity == 0) && (numCyber > 0) && (numDragoons > 0))
 			{
 				//more range dragoons
 				goal.push_back(MetaPair(BWAPI::UpgradeTypes::Singularity_Charge, 1));
@@ -281,10 +329,14 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		}
 		if (numForge > 0)
 		{
-			if ( numForge > 0 && numCannon < 4 )
+			if (numCannon < 4 )
 			{
 				goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 2));
 			}
+		}
+		else if (minute < 20 && minute > 10)
+		{
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Forge, numForge + 2));
 		}
 		//rest lock 
 		StrategyManager::Instance().forgeLock = 0;
@@ -294,9 +346,9 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
         goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 1));
 
         // once we have a 2nd nexus start making dragoons
-        if (numNexusAll >= 2)
+        if (numPylons >= 14 && numForge>3)
         {
-            goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numDragoons + 2));
         }
     }
 	else if (Config::Strategy::StrategyName == "Protoss_ZealotRush")

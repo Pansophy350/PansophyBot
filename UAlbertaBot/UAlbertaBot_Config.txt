@@ -32,13 +32,13 @@
         "BOSSFrameLimit"            : 160,
         "WorkersPerRefinery"        : 3,
         "BuildingSpacing"           : 1,
-        "PylonSpacing"              : 3
+        "PylonSpacing"              : 1
     },
 
     "Debug" :
     {
         "ErrorLogFilename"          : "bwapi-data/AI/UAlbertaBot_ErrorLog.txt",
-        "LogAssertToErrorFile"      : false,
+        "LogAssertToErrorFile"      : true,
         
         "DrawGameInfo"              : false,   
         "DrawUnitHealthBars"        : true,
@@ -83,7 +83,7 @@
         "Zerg"                      : "Zerg_ZerglingRush",
         
         "ScoutGasSteal"             : false,
-        "ScoutHarassEnemy"          : false,
+        "ScoutHarassEnemy"          : true,
         
         "ReadDirectory"             : "bwapi-data/read/",
         "WriteDirectory"            : "bwapi-data/write/",
@@ -91,39 +91,30 @@
         "UseEnemySpecificStrategy"  : true,
         "EnemySpecificStrategy"     :
         {
-            "ualbertabot_T"              : { "Protoss" : "Protoss_Pansophy", "Terran" : "Terran_VultureRush", "Zerg" : "Zerg_ZerglingRush" },
-            "ualbertabot_P"              : { "Protoss" : "Protoss_Pansophy", "Terran" : "Terran_MarineRush", "Zerg" : "Zerg_ZerglingRush" },
-            "ualbertabot_Z"              : { "Protoss" : "Protoss_Pansophy", "Terran" : "Terran_4RaxMarines", "Zerg" : "Zerg_ZerglingRush" }
+            "BotName1"              : { "Protoss" : "Protoss_ZealotRush", "Terran" : "Terran_VultureRush", "Zerg" : "Zerg_ZerglingRush" },
+            "BotName2"              : { "Protoss" : "Protoss_DragoonRush", "Terran" : "Terran_MarineRush", "Zerg" : "Zerg_ZerglingRush" },
+            "LetaBot"               : { "Protoss" : "Protoss_ZealotRush", "Terran" : "Terran_4RaxMarines", "Zerg" : "Zerg_ZerglingRush" }
         },
         
         "Strategies" :
         {
-            "Protoss_ZealotRush"     : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot",  "Probe", "Zealot", "Zealot", "Probe", "Pylon", "Zealot", "Gateway", "Probe", "Pylon", "Probe", "Zealot", "Probe", "Zealot", "Zealot", "Zealot", "Zealot", "Pylon", "Probe", "Zealot", "Zealot", "Zealot" ]},
-            "Protoss_DragoonRush"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Probe", "Cybernetics_Core", "Probe", "Probe", "Gateway", "Dragoon", "Gateway", "Pylon", "Dragoon", "Dragoon", "Probe", "Gateway", "Pylon", "Probe", "Dragoon", "Dragoon", "Dragoon"]},
-            "Protoss_DTRush"         : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Cybernetics_Core", "Probe", "Citadel_of_Adun", "Probe", "Templar_Archives", "Gateway", "Dark_Templar", "Dark_Templar", "Pylon", "Dark_Templar", "Dark_Templar", "Probe", "Pylon", "Probe" ]},
-            "Protoss_Drop"           : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Probe", "Cybernetics_Core", "Probe", "Gateway", "Robotics Facility"]},
-            "Terran_MarineRush"      : { "Race" : "Terran",  "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "SCV", "Supply Depot", "SCV"]},
-            "Terran_TankPush"        : { "Race" : "Terran",  "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "SCV", "Supply Depot", "SCV", "Barracks", "Refinery", "SCV", "SCV", "SCV", "SCV", "Factory", "Factory", "SCV", "SCV", "SCV", "SCV", "Machine Shop", "Machine Shop", "Supply Depot", "Tank Siege Mode", "Siege Tank Tank Mode", "Siege Tank Tank Mode", "Siege Tank Tank Mode", "Siege Tank Tank Mode"]},
-            "Terran_4RaxMarines"     : { "Race" : "Terran",  "OpeningBuildOrder" : ["Barracks", "SCV", "SCV", "Marine", "SCV", "Marine", "Supply Depot", "Marine", "Marine", "Marine", "Marine", "Marine", "Marine"]},
-            "Terran_VultureRush"     : { "Race" : "Terran",  "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "SCV", "Supply Depot", "SCV", "SCV", "Barracks", "Refinery", "SCV", "SCV", "SCV", "SCV", "Supply Depot", "Factory", "SCV", "SCV", "SCV", "Vulture", "Vulture"]},
-            "Zerg_ZerglingRush"      : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Spawning Pool", "Zergling", "Zergling", "Zergling", "Zergling"] },
-            "Zerg_9Pool"             : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Drone", "Spawning Pool", "Drone", "Extractor", "Overlord", "Drone", "Zergling", "Zergling", "Zergling", "Hydralisk Den", "Drone", "Drone", "Drone", "Drone"] },
-            "Zerg_2HatchHydra"       : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Drone", "Overlord", "Drone", "Drone", "Drone", "Hatchery", "Spawning Pool", "Drone", "Extractor", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Hydralisk Den", "Drone", "Overlord", "Drone", "Drone", "Drone", "Grooved_Spines", "Hydralisk","Hydralisk","Hydralisk","Hydralisk", "Hydralisk","Hydralisk","Hydralisk","Hydralisk", "Hydralisk","Hydralisk","Hydralisk","Hydralisk", "Hatchery", "Extractor" ] },
-            "Zerg_3HatchMuta"        : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Overlord", "Drone", "Drone", "Drone", "Drone", "Hatchery", "Drone", "Drone", "Spawning_Pool", "Drone", "Drone", "Extractor", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone","Lair", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Spire", "Overlord", "Drone", "Overlord", "Hatchery", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Hatchery"]},
-            "Protoss_FastTemplar"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Zealot",  "Probe", "Assimilator", "Probe", "Cybernetics_Core", "Zealot", "Probe", "Citadel_of_Adun", "Zealot", "Probe", "Templar_Archives", "Psionic_Storm", "Gateway", "Zealot", "High_Templar", "High_Templar", "Zealot", "Zealot", "Zealot", "Pylon", "High_Templar", "Zealot", "High_Templar", "Zealot", "Zealot", "Probe", "Pylon", "Probe" ]},
+            "Protoss_Pansophy"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Zealot", "Zealot", "Zealot", "Zealot", "Probe", "Pylon", "Forge", "Zealot", "Photon_Cannon", "Zealot", "Photon_Cannon", "Zealot", "Assimilator", "Probe", "Zealot", "Zealot","Pylon", "Probe", "Cybernetics_Core", "Zealot", "Probe", "Gateway", "Zealot", "Zealot", "Zealot", "Zealot", "Citadel_of_Adun", "Pylon", "Probe", "Zealot", "Zealot", "Zealot", "Templar_Archives", "Zealot", "Zealot", "Zealot", "Dark_Templar", "Dark_Templar", "Psionic_Storm"]},
 
-	    "Protoss_SlowTemplar"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot", "Pylon", "Assimilator", "Zealot", "Zealot", "Zealot", "Cybernetics_Core", "Zealot", "Zealot", "Zealot", "Citadel_of_Adun", "Probe", "Probe", "Templar_Archives", "Psionic_Storm", "High_Templar", "Dark_Templar" ]},
-
- 	    "Protoss_SlowTemplar3"   : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot", "Pylon", "Assimilator", "Zealot", "Zealot", "Zealot", "Cybernetics_Core", "Zealot", "Zealot", "Zealot", "Citadel_of_Adun", "Probe", "Probe", "Templar_Archives", "Psionic_Storm", "High_Templar", "Dark_Templar" ]},
-
-            "Protoss_SlowTemplar2"   : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Forge", "Zealot", "Zealot", "Gateway", "Probe", "Probe", "Pylon", "Assimilator", "Zealot", "Zealot", "Zealot", "Gateway", "Zealot", "Cybernetics_Core", "Zealot", "Zealot", "Dragoon", "Dragoon", "Zealot", "Citadel_of_Adun", "Dragoon", "Zealot", "Zealot", "Probe", "Templar_Archives", "Zealot", "Zealot", "Zealot", "Probe", "Psionic_Storm", "Zealot", "Zealot", "Zealot", "High_Templar", "Dark_Templar" ]},
-
-            "Zerg_3HatchScourge"     : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Overlord", "Drone", "Drone", "Drone", "Drone", "Hatchery", "Drone", "Drone", "Spawning_Pool", "Drone", "Drone", "Extractor", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone","Lair", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Spire", "Overlord", "Drone", "Overlord", "Hatchery", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Hatchery", "Drone", "Extractor", "Drone", "Hatchery", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Hatchery", "Extractor", "Extractor", "Hatchery"]},
-
-            "Protoss_Pansophy"       : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot",  "Probe", "Zealot", "Zealot", "Probe", "Pylon", "Zealot", "Gateway", "Assimilator", "Probe", "Cybernetics_Core","Zealot", "Probe", "Citadel_of_Adun", "Zealot", "Zealot", "Zealot", "Probe", "Templar_Archives", "Zealot", "Psionic_Storm", "Zealot", "High_Templar", "Probe", "Zealot"]},
-
-	    "Protoss_CannonRush"     : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot",  "Probe", "Zealot", "Zealot", "Probe", "Pylon", "Zealot", "Gateway", "Assimilator", "Probe", "Cybernetics_Core","Zealot", "Probe", "Citadel_of_Adun", "Zealot", "Zealot", "Zealot", "Zealot", "Probe", "Templar_Archives", "Photon_Cannon", "Psionic_Storm", "Probe"]},
-            "Protoss_Pansophy_temp"  : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Zealot",  "Probe", "Assimilator", "Probe", "Cybernetics_Core","Zealot", "Probe", "Citadel_of_Adun", "Zealot", "Probe", "Templar_Archives", "Psionic_Storm", "Gateway", "Zealot", "High_Templar", "High_Templar", "Zealot", "Zealot", "Zealot", "Pylon", "High_Templar", "Zealot", "High_Templar", "Zealot", "Zealot", "Probe", "Pylon", "Probe" ]}
+            "Protoss_Pansophy_temp"       : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Zealot",  "Probe", "Assimilator", "Probe", "Cybernetics_Core","Zealot", "Probe", "Citadel_of_Adun", "Zealot", "Probe", "Templar_Archives", "Psionic_Storm", "Gateway", "Zealot", "High_Templar", "High_Templar", "Zealot", "Zealot", "Zealot", "Pylon", "High_Templar", "Zealot", "High_Templar", "Zealot", "Zealot", "Probe", "Pylon", "Probe" ]},
+            
+            "Protoss_ZealotRush"    : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Gateway", "Probe", "Probe", "Zealot", "Pylon", "Zealot", "Zealot",  "Probe", "Zealot", "Zealot", "Probe", "Pylon", "Zealot", "Gateway", "Probe", "Pylon", "Probe", "Zealot", "Probe", "Zealot", "Zealot", "Zealot", "Zealot", "Pylon", "Probe", "Zealot", "Zealot", "Zealot" ]},
+            "Protoss_DragoonRush"   : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Probe", "Cybernetics_Core", "Probe", "Probe", "Gateway", "Singularity_Charge", "Dragoon", "Gateway", "Pylon", "Dragoon", "Dragoon", "Probe", "Gateway", "Pylon", "Probe", "Dragoon", "Dragoon", "Dragoon"]},
+            "Protoss_DTRush"        : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Cybernetics_Core", "Probe", "Citadel_of_Adun", "Probe", "Templar_Archives", "Gateway", "Dark_Templar", "Dark_Templar", "Pylon", "Dark_Templar", "Dark_Templar", "Probe", "Pylon", "Probe" ]},
+            "Protoss_Drop"          : { "Race" : "Protoss", "OpeningBuildOrder" : ["Probe", "Probe", "Probe", "Probe", "Pylon", "Probe", "Probe", "Gateway", "Probe", "Assimilator", "Probe", "Probe", "Cybernetics_Core", "Probe", "Gateway", "Robotics Facility"]},
+            "Terran_MarineRush"     : { "Race" : "Terran",  "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "SCV", "Supply Depot", "SCV"]},
+            "Terran_TankPush"       : { "Race" : "Terran",  "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "SCV", "Supply Depot", "SCV", "Barracks", "Refinery", "SCV", "SCV", "SCV", "SCV", "Factory", "Factory", "SCV", "SCV", "SCV", "SCV", "Machine Shop", "Machine Shop", "Supply Depot", "Tank Siege Mode", "Siege Tank Tank Mode", "Siege Tank Tank Mode", "Siege Tank Tank Mode", "Siege Tank Tank Mode"]},
+            "Terran_4RaxMarines"    : { "Race" : "Terran",  "OpeningBuildOrder" : ["Barracks", "SCV", "SCV", "Marine", "SCV", "Marine", "Supply Depot", "Marine", "Marine", "Marine", "Marine", "Marine", "Marine"]},
+            "Terran_VultureRush"    : { "Race" : "Terran",  "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "SCV", "Supply Depot", "SCV", "SCV", "Barracks", "Refinery", "SCV", "SCV", "SCV", "SCV", "Supply Depot", "Factory", "SCV", "SCV", "SCV", "Vulture", "Vulture"]},
+            "Zerg_ZerglingRush"     : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Spawning Pool", "Zergling", "Zergling", "Zergling", "Zergling"] },
+            "Zerg_9Pool"            : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Drone", "Spawning Pool", "Drone", "Extractor", "Overlord", "Drone", "Zergling", "Zergling", "Zergling", "Hydralisk Den", "Drone", "Drone", "Drone", "Drone"] },
+            "Zerg_2HatchHydra"      : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Drone", "Overlord", "Drone", "Drone", "Drone", "Hatchery", "Spawning Pool", "Drone", "Extractor", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Hydralisk Den", "Drone", "Overlord", "Drone", "Drone", "Drone", "Grooved_Spines", "Hydralisk","Hydralisk","Hydralisk","Hydralisk", "Hydralisk","Hydralisk","Hydralisk","Hydralisk", "Hydralisk","Hydralisk","Hydralisk","Hydralisk", "Hatchery", "Extractor" ] },
+            "Zerg_3HatchMuta"       : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Overlord", "Drone", "Drone", "Drone", "Drone", "Hatchery", "Drone", "Drone", "Spawning_Pool", "Drone", "Drone", "Extractor", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone","Lair", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Spire", "Overlord", "Drone", "Overlord", "Hatchery", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Mutalisk", "Hatchery"]},
+            "Zerg_3HatchScourge"    : { "Race" : "Zerg",    "OpeningBuildOrder" : ["Drone", "Drone", "Drone", "Drone", "Overlord", "Drone", "Drone", "Drone", "Drone", "Hatchery", "Drone", "Drone", "Spawning_Pool", "Drone", "Drone", "Extractor", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone","Lair", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Spire", "Overlord", "Drone", "Overlord", "Hatchery", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Drone", "Hatchery", "Drone", "Extractor", "Drone", "Hatchery", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Scourge", "Hatchery", "Extractor", "Extractor", "Hatchery"]}
         }
     }
 }

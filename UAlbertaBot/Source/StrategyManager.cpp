@@ -348,7 +348,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
         // once we have a 2nd nexus start making dragoons
         if (numPylons >= 14 && numForge>3)
         {
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numDragoons + 2));
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 2));
         }
     }
 	else if (Config::Strategy::StrategyName == "Protoss_ZealotRush")

@@ -59,9 +59,9 @@ void CombatCommander::initializeSquads()
 			}
 		}
 	}
-	BWAPI::Position defensePosition = defense_choke + (ourBasePosition * 200 - defense_choke * 200) / (int)defense_choke.getDistance(ourBasePosition);
+	BWAPI::Position defensePosition = defense_choke + ((ourBasePosition * 200 - defense_choke * 200) / (int)defense_choke.getDistance(ourBasePosition));	
 	//get cannon nearest to defense position and defend that instead
-	//defensePosition = getNearestCannonPosition(defensePosition);
+	defensePosition = getNearestCannonPosition(defensePosition);
 
 	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, 200, "Defend our base");
 	_squadData.addSquad("MainDefense", Squad("MainDefense", mainDefenseOrder, BaseDefensePriority));
@@ -326,9 +326,9 @@ void CombatCommander::updateMainDefenseSquad(){
 			}
 		}
 		//place defense position 200 pixels from choke piont towards our base
-		BWAPI::Position defensePosition = defense_choke + (ourBasePosition * 200 - defense_choke * 200) / (int)defense_choke.getDistance(ourBasePosition);
+		defensePosition = defense_choke + (ourBasePosition * 200 - defense_choke * 200) / (int)defense_choke.getDistance(ourBasePosition);
 		//get cannon nearest to defense position and defend that instead
-		//defensePosition = getNearestCannonPosition(defensePosition);
+		defensePosition = getNearestCannonPosition(defensePosition);
 		radius = 200;
 	}
 	else{

@@ -633,6 +633,11 @@ void WorkerManager::rebalanceWorkers()
 		{
 			workerData.setWorkerJob(worker, WorkerData::Idle, nullptr);
 		}
+		else if (depot && workerData.getNumMineralWorkers() < workerData.getNumIdleWorkers())
+		{
+			workerData.setWorkerJob(worker, WorkerData::Move, nullptr);
+		}
+
 	}
 }
 

@@ -224,14 +224,14 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Dragoon, numDragoons + 4));
 		}
 
-		//a 1/2 of the time make 2 more pylons 
+		//]make pylons 
 		if ( numPylons < 24 )
 		{
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Pylon, numPylons + 2));
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Pylon, numPylons + 3));
 		}
 		else if (minute > 30 && (numPylons < 24))
 		{
-			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Pylon, numPylons + 3));
+			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Pylon, numPylons + 5));
 		}
 
 		//Upgrades 
@@ -323,7 +323,7 @@ const MetaPairVector StrategyManager::getProtossBuildOrderGoal() const
 		}
 
 		//a 1/5 of the time make cannons 
-		if (minute % 5 == 0 && numForge > 0)
+		if (minute % 5 == 0 && numForge > 0 && numCannon < 8)
 		{
 			goal.push_back(MetaPair(BWAPI::UnitTypes::Protoss_Photon_Cannon, numCannon + 1));
 		}

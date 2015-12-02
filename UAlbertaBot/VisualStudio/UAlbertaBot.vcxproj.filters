@@ -281,8 +281,5 @@
     <ClInclude Include="..\source\CasterManager.h">
       <Filter>game\combat\micro</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Unit_Compare.h">
-      <Filter>game\combat\micro</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

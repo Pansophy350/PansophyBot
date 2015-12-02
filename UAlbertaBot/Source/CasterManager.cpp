@@ -138,7 +138,7 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 		if ((casterUnit->getEnergy() < 50) || (casterUnit->getHitPoints() < 40) || destroying)
 		{
 			toMerge.insert(casterUnit);
-			BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 6, BWAPI::Colors::Black, true);
+			//BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 6, BWAPI::Colors::Black, true);
 			target = casterUnit;
 			//casterUnits.useTech(BWAPI::TechTypes::Archon_Warp, casterUnit);
 		}

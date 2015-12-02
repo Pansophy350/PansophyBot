@@ -321,6 +321,7 @@ BWAPI::Unit WorkerManager::getClosestDepot(BWAPI::Unit worker)
 
 		if (unit->getType().isResourceDepot() && (unit->isCompleted() || unit->getType() == BWAPI::UnitTypes::Zerg_Lair) && !workerData.depotIsFull(unit))
 		{
+			if (workerData.getMineralPatchesNearDepot(unit).empty()) continue;
 			double distance = unit->getDistance(worker);
 			if (!closestDepot || distance < closestDistance)
 			{
@@ -386,8 +387,10 @@ BWAPI::Unit WorkerManager::getBuilder(Building & b, bool setJobAsBuilder)
 	// variables to hold the closest worker of each type to the building
 	BWAPI::Unit closestMovingWorker = nullptr;
 	BWAPI::Unit closestMiningWorker = nullptr;
+	BWAPI::Unit closestIdleWorker = nullptr;
 	double closestMovingWorkerDistance = 0;
 	double closestMiningWorkerDistance = 0;
+	double closestIdleWorkerDistance = 0;
 
 	// look through each worker that had moved there first
 	for (auto & unit : workerData.getWorkers())
@@ -403,6 +406,18 @@ BWAPI::Unit WorkerManager::getBuilder(Building & b, bool setJobAsBuilder)
             }
             return unit;
         }
+
+		//idle worker check
+			if (unit->isCompleted() && ((workerData.getWorkerJob(unit) == WorkerData::Idle) || (workerData.getWorkerJob(unit) == WorkerData::Default)))
+		{
+			// if it is a new closest distance, set the pointer
+			double distance = unit->getDistance(BWAPI::Position(b.finalPosition));
+			if (!closestIdleWorker || distance < closestIdleWorkerDistance)
+			{
+				closestIdleWorker = unit;
+				closestIdleWorkerDistance = distance;
+			}
+		}
 
 		// mining worker check
 		if (unit->isCompleted() && (workerData.getWorkerJob(unit) == WorkerData::Minerals))
@@ -429,8 +444,11 @@ BWAPI::Unit WorkerManager::getBuilder(Building & b, bool setJobAsBuilder)
 		}
 	}
 
-	// if we found a moving worker, use it, otherwise using a mining worker
-	BWAPI::Unit chosenWorker = closestMovingWorker ? closestMovingWorker : closestMiningWorker;
+	// pull from idle, then moving, then mining
+	BWAPI::Unit chosenWorker;
+	if (closestIdleWorker) chosenWorker = closestIdleWorker;
+	else if (closestMovingWorker) chosenWorker = closestMovingWorker;
+	else chosenWorker = closestMiningWorker;
 
 	// if the worker exists (one may not have been found in rare cases)
 	if (chosenWorker && setJobAsBuilder)

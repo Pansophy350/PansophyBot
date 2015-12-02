@@ -30,8 +30,8 @@ void RangedManager::assignTargetsOld(const BWAPI::Unitset & targets)
 		//check if we are caught in a psi-storm if so get out
 		for (auto &p : psistorms){
 			int distance = rangedUnit->getDistance(p->getPosition());
-			if (distance < 55){
-				BWAPI::Position outside = rangedUnit->getPosition() + (rangedUnit->getPosition() - p->getPosition())*(int)ceil(80 / (float)distance);
+			if (distance < 70){
+				BWAPI::Position outside = rangedUnit->getPosition() + (rangedUnit->getPosition() - p->getPosition())*(int)ceil(90 / (float)distance);
 				rangedUnit->move(outside);
 				continue;
 			}

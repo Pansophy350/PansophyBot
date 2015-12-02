@@ -115,18 +115,30 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 	//merge
 	for (auto & casterUnit : casterUnits)
 	{
+		
+		BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
+
+		BWAPI::Position HTloc = casterUnit->getPosition();
+
+		bool destroying;
+
+		if (enemyBaseLocation) {
+
+			BWAPI::Position enemyBasePosition = enemyBaseLocation->getPosition();
+			int distanceFromBase = MapTools::Instance().getGroundDistance(HTloc, enemyBasePosition);
+			destroying = (distanceFromBase < 50) && !(casterUnit->isMoving());
+		}
+		else {
+			destroying = false;
+		}
+
+		
 		// high templar begin with 50 psi, so if we check energy at anything higher than 49 it will return
 		// true as soon as they are made
-		BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
-		BWAPI::Position HTloc = casterUnit->getPosition();
-		int distanceFromBase = MapTools::Instance().getGroundDistance(HTloc, ourBasePosition);
-
-		bool destroying = (distanceFromBase > 100) && casterUnit->isHoldingPosition();
-		
-		if ( (casterUnit->getEnergy() < 65) || (casterUnit->getHitPoints() < 30) || destroying )
+		if ((casterUnit->getEnergy() < 50) || (casterUnit->getHitPoints() < 40) || destroying)
 		{
 			toMerge.insert(casterUnit);
-			BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 6, BWAPI::Colors::Black, true);
+			//BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 6, BWAPI::Colors::Black, true);
 			target = casterUnit;
 			//casterUnits.useTech(BWAPI::TechTypes::Archon_Warp, casterUnit);
 		}

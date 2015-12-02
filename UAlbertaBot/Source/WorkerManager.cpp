@@ -358,7 +358,7 @@ BWAPI::Unit WorkerManager::getGasWorker(BWAPI::Unit refinery)
 	{
         UAB_ASSERT(unit != nullptr, "Unit was null");
 
-		if (workerData.getWorkerJob(unit) == WorkerData::Minerals)
+		if (workerData.getWorkerJob(unit) == WorkerData::Minerals || workerData.getWorkerJob(unit) == WorkerData::Idle)
 		{
 			double distance = unit->getDistance(refinery);
 			if (!closestWorker || distance < closestDistance)

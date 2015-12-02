@@ -331,9 +331,15 @@ void CombatCommander::updateMainDefenseSquad(){
 		defensePosition = getNearestCannonPosition(defensePosition);
 		radius = 200;
 	}
-	else{
+	//if there are enemies in our base defend it
+	else if(!attackers.empty()){
 		defensePosition = ourBasePosition;
 		radius = 800;
+	}
+	//finally if we don't know where the enemy base is just defend the nearest chokepoint
+	else{
+		defense_choke = BWTA::getNearestChokepoint(ourBasePosition)->getCenter();
+		defensePosition = defense_choke + (ourBasePosition * 200 - defense_choke * 200) / (int)defense_choke.getDistance(ourBasePosition);
 	}
 	SquadOrder mainDefenseOrder(SquadOrderTypes::Defend, defensePosition, radius, "Defend our base");
 	mainDefenseSquad.setSquadOrder(mainDefenseOrder);

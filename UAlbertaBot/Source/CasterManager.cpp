@@ -116,14 +116,22 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 	for (auto & casterUnit : casterUnits)
 	{
 		
-		BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
-		BWAPI::Position enemyBasePosition = BWAPI::Position(BWAPI::Broodwar->enemy()->getStartLocation());
+		BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
 
 		BWAPI::Position HTloc = casterUnit->getPosition();
-		int distanceFromBase = MapTools::Instance().getGroundDistance(HTloc, enemyBasePosition);
 
-		bool destroying = (distanceFromBase < 50) && !(casterUnit->isMoving());
-		//
+		bool destroying;
+
+		if (enemyBaseLocation) {
+
+			BWAPI::Position enemyBasePosition = enemyBaseLocation->getPosition();
+			int distanceFromBase = MapTools::Instance().getGroundDistance(HTloc, enemyBasePosition);
+			destroying = (distanceFromBase < 50) && !(casterUnit->isMoving());
+		}
+		else {
+			destroying = false;
+		}
+
 		
 		// high templar begin with 50 psi, so if we check energy at anything higher than 49 it will return
 		// true as soon as they are made

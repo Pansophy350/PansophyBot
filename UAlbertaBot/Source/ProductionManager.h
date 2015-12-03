@@ -43,6 +43,8 @@ class ProductionManager
 
 public:
 
+	BWAPI::TilePosition buildHere;
+
     static ProductionManager &	Instance();
 
     void        drawQueueInformation(std::map<BWAPI::UnitType,int> & numUnits,int x,int y,int index);

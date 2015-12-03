@@ -7,6 +7,7 @@ ProductionManager::ProductionManager()
 	: _assignedWorkerForThisBuilding (false)
 	, _haveLocationForThisBuilding   (false)
 	, _enemyCloakedDetected          (false)
+	, buildHere(BWAPI::Broodwar->self()->getStartLocation())
 {
     setBuildOrder(StrategyManager::Instance().getOpeningBookBuildOrder());
 }
@@ -414,7 +415,12 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
 			BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::TilePosition(attackPosition), item.isGasSteal);
 		}
 		else{
-			BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::Broodwar->self()->getStartLocation(), item.isGasSteal);
+			if (ProductionManager::buildHere != BWAPI::Broodwar->self()->getStartLocation()){
+				BuildingManager::Instance().addBuildingTask(t.getUnitType(), ProductionManager::buildHere, item.isGasSteal);
+			}
+			else{
+				BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::Broodwar->self()->getStartLocation(), item.isGasSteal);
+			}
 		}
     }
     else if (t.getUnitType().isAddon())

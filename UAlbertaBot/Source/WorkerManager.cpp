@@ -1,6 +1,7 @@
 #include "Common.h"
 #include "WorkerManager.h"
 #include "Micro.h"
+#include "ProductionManager.h"
 
 using namespace UAlbertaBot;
 
@@ -301,6 +302,7 @@ void WorkerManager::setMineralWorker(BWAPI::Unit unit)
 	{
 		// update workerData with the new job
 		workerData.setWorkerJob(unit, WorkerData::Minerals, depot);
+		ProductionManager::Instance().buildHere = unit->getTilePosition();
 	}
 	else
 	{

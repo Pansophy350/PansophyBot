@@ -380,40 +380,6 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
 			}
 			BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::TilePosition(defensePosition), item.isGasSteal);
 		}
-		else if (t.getUnitType() == BWAPI::UnitTypes::Protoss_Photon_Cannon && 
-			(BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Forge) > 0) && ((BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Photon_Cannon) >2) ||
-			(BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Photon_Cannon)))) {
-			//build initial defense near choke
-			double min_distance = 1000000;
-			BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
-			BWAPI::Position attack_choke;
-			BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
-			if (enemyBaseLocation){
-				BWAPI::Position enemyBasePosition = enemyBaseLocation->getPosition();
-				for (auto choke : BWTA::getRegion(enemyBasePosition)->getChokepoints()){
-					double distance = BWTA::getGroundDistance(BWAPI::TilePosition(choke->getCenter()), BWAPI::TilePosition(enemyBasePosition));
-					if (distance < min_distance){
-						min_distance = distance;
-						attack_choke = choke->getCenter();
-					}
-				}
-			}
-			else{
-				attack_choke = BWTA::getNearestChokepoint(enemyBaseLocation->getPosition())->getCenter();
-			}
-			BWAPI::Position attackPosition = attack_choke + ((enemyBaseLocation->getPosition() * 200 - attack_choke * 200) / (int)attack_choke.getDistance(enemyBaseLocation->getPosition()));
-			//find a buildable position before hand, otherwise things freeze up sometimes
-			int iter = 0;
-			while (!BWAPI::Broodwar->isBuildable(BWAPI::TilePosition(attackPosition), false) && iter <20){
-				Building b(BWAPI::UnitTypes::Unknown, BWAPI::TilePosition(attackPosition));
-				attackPosition = BWAPI::Position(BuildingPlacer::Instance().getBuildLocationNear(b, 0, false));
-				iter++;
-			}
-			if (!BWAPI::Broodwar->isBuildable(BWAPI::TilePosition(attackPosition), false)){
-				attackPosition = enemyBaseLocation->getPosition();
-			}
-			BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::TilePosition(attackPosition), item.isGasSteal);
-		}
 		else{
 			if (ProductionManager::buildHere != BWAPI::Broodwar->self()->getStartLocation()){
 				BuildingManager::Instance().addBuildingTask(t.getUnitType(), ProductionManager::buildHere, item.isGasSteal);

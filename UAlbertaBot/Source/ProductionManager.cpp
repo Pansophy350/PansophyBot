@@ -348,7 +348,8 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
         // send the building task to the building manager
 		if ((t.getUnitType() == BWAPI::UnitTypes::Protoss_Pylon && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Pylon) == 0) ||
 			t.getUnitType() == BWAPI::UnitTypes::Protoss_Photon_Cannon ||
-			t.getUnitType() == BWAPI::UnitTypes::Protoss_Gateway && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Gateway) <2) {
+			t.getUnitType() == BWAPI::UnitTypes::Protoss_Gateway && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Gateway) <2 ||
+			t.getUnitType() == BWAPI::UnitTypes::Protoss_Forge && BWAPI::Broodwar->self()->allUnitCount(BWAPI::UnitTypes::Protoss_Forge) == 0) {
 			//build initial defense near choke
 			double min_distance = 1000000;
 			BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());

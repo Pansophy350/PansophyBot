@@ -28,6 +28,7 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 {
 	const BWAPI::Unitset & casterUnits = getUnits();
 	const BWAPI::Unitset & ourUnits = BWAPI::Broodwar->self()->getUnits();
+	
 
 	BWAPI::Bulletset bullets = BWAPI::Broodwar->getBullets();
 	BWAPI::Bulletset psistorms;
@@ -107,19 +108,18 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 		}
 	}
 
-	// initalize a target
-	auto target = *casterUnits.begin();
+	// Archon Warp
 
+	// initalize a target, won't necessarily remain as this
+	auto target = *casterUnits.begin();
 	BWAPI::Unitset toMerge;
 
-	//merge
 	for (auto & casterUnit : casterUnits)
 	{
 		
+		// checks if we ht are Idle when destroying buildings
 		BWTA::BaseLocation * enemyBaseLocation = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->enemy());
-
 		BWAPI::Position HTloc = casterUnit->getPosition();
-
 		bool destroying;
 
 		if (enemyBaseLocation) {
@@ -131,19 +131,19 @@ void CasterManager::checkTargets(const BWAPI::Unitset & targets)
 		else {
 			destroying = false;
 		}
-
 		
 		// high templar begin with 50 psi, so if we check energy at anything higher than 49 it will return
 		// true as soon as they are made
 		if ((casterUnit->getEnergy() < 50) || (casterUnit->getHitPoints() < 40) || destroying)
 		{
 			toMerge.insert(casterUnit);
-			//BWAPI::Broodwar->drawCircleMap(casterUnit->getPosition(), 6, BWAPI::Colors::Black, true);
 			target = casterUnit;
-			//casterUnits.useTech(BWAPI::TechTypes::Archon_Warp, casterUnit);
+		}
+		else {
+			
 		}
 	}
-	toMerge.useTech(BWAPI::TechTypes::Archon_Warp, target);// , *toMerge.begin());
+	toMerge.useTech(BWAPI::TechTypes::Archon_Warp, target);
 }
 
 
